@@ -1,0 +1,46 @@
+{
+  "realhook": {
+    "host": "192.168.4.92",
+    "stat_port": "8089",
+    "stat_path": "/cp_status"
+  },
+  "servers": [
+    {
+      "host": "192.168.4.3",
+      "port": "80"
+    }
+  ],
+  "flume": {
+    "port": "6789",
+    "host": "192.168.4.5"
+  },
+  "cprules": [
+    {
+      "name": "campaign1",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:WT.bs=360x568)"
+        }
+      ]
+    },
+    {
+      "name": "campaign2",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:WT.bs=360x111)"
+        }
+      ]
+    },
+    {
+      "name": "campaign3",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:WT.bs=360x111)"
+        }
+      ]
+    }
+  ]
+}
