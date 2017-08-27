@@ -1,6 +1,6 @@
 {
   "realhook": {
-    "host": "192.168.4.92",
+    "host": "192.168.4.153",
     "stat_port": "8089",
     "stat_path": "/cp_status"
   },
@@ -10,10 +10,6 @@
       "port": "80"
     }
   ],
-  "flume": {
-    "port": "6789",
-    "host": "192.168.4.5"
-  },
   "cprules": [
     {
       "name": "campaign1",
