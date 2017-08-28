@@ -16,11 +16,11 @@ sync2shotpot(rhconf);
 initRealObj(rhconf);
 
 
-fs.watchFile(rhconfPath, path =>{
+fs.watchFile(rhconfPath, path => {
     log.info(`File ${path} has been changed, start sync config to shotpot`);
     sync2shotpot(rhconf);
     initReal(rhconf);
-})
+});
 
 // 阻塞读配置文件
 function readConf(confPath) {
@@ -62,21 +62,31 @@ function sync2shotpot(rhconf) {
 
 function initRealObj(rhconf) {
     em_status = {
-        summary:{
-            campaign:0,
-            uv:0,
-            history_uv:[],
-            uv_set:hll()
+        summary: {
+            campaign: 0,
+            uv: 0,
+            uv_set: hll(),
+            history_uv: [],
+            iuv: 0,
+            iuv_set: hll(),
+            history_iuv: [],
+            suc_time:0,
+            suc_rate:0
         },
-        campaigns:[]
+        campaigns: []
     };
     rhconf.cprules.forEach((cprule) => {
         em_status.summary.campaign += 1;
         em_status.campaigns.push({
-            name:cprule.name,
-            uv:0,
-            history_uv:[],
-            uv_set:hll()
+            name: cprule.name,
+            uv: 0,
+            uv_set: hll(),
+            history_uv: [],
+            iuv: 0,
+            iuv_set: hll(),
+            history_iuv: [],
+            suc_time:0,
+            suc_rate:0
         });
     });
 }
@@ -88,8 +98,7 @@ const app = new Koa();
 const server = require('http').Server(app.callback());
 
 
-
-server.listen(rhconf.realhook.stat_port, ()=>{
+server.listen(rhconf.realhook.stat_port, () => {
     log.info(`Realhook server start at: ${rhconf.realhook.stat_port}`);
 });
 
@@ -97,23 +106,23 @@ server.listen(rhconf.realhook.stat_port, ()=>{
 const koaBody = require('koa-body');
 const Router = require('koa-router');
 const router = new Router();
-const senttcp = require('./sendtcp');
+// const senttcp = require('./sendtcp');
 
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
-router.use(senttcp());
+// router.use(senttcp());
 
 router.post(rhconf.realhook.stat_path, async (ctx, next) => {
-    // console.log(JSON.stringify(ctx.request.body));
-    // ctx.request.body.forEach((hit) => {
-    //     em_status.summary.total_uv.insert(hit.ckid);
-    //     em_status.campaigns.forEach((campaign) => {
-    //         if (hit.name === campaign.name) {
-    //             em_status.campaign.uv.insert();
-    //         }
-    //     });
-    // });
+    console.log(JSON.stringify(ctx.request.body));
+    ctx.request.body.forEach((hit) => {
+        em_status.summary.uv_set.insert(hit.ckid);
+        em_status.campaigns.forEach((campaign) => {
+            if (hit.name === campaign.name) {
+                em_status.campaign.uv.insert(hit.ckid);
+            }
+        });
+    });
 });
 
 
@@ -122,7 +131,7 @@ const io = require('socket.io')(server);
 const realhook = io.of('/realhook');
 
 realhook.on('connection', (socket) => {
-    setInterval(function(){
+    setInterval(function () {
         socket.emit('realdata', em_status);
     }, 3000);
 });
