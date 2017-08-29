@@ -5,8 +5,8 @@ const Log = require('log');
 const log = new Log('info');
 const querystring = require('querystring');
 
-const config = require('./config');
-const tcpOpt = config.tcpClient;
+const config = require('../conf/tcpserver');
+const tcpOpt = config.tcpserver;
 
 socket.connect(tcpOpt, () => {
     log.info(`Connect TCP server succeed: ${tcpOpt.host}`)
@@ -25,25 +25,26 @@ socket.on('close', () => {
 });
 
 // 解析post请求中的json为对象
-function send(ctx) {
+function sendtcp(ctx) {
     console.log(JSON.stringify(ctx.request.body));
     ctx.request.body.forEach((hit) => {
-        socket.write(JSON.stringify({
-            timestamp: hit.time,
-            request: {
-                host: hit.host,
-                path: hit.stem,
-                // query转为js对象，取消 url decode
-                qury: querystring.parse(hit.qury, '&', '=', {decodeURIComponent: s => s}),
-                ckie: hit.ckid
-            }
-        }) + '\n');
+        socket.write(
+            JSON.stringify({
+                timestamp: hit.time,
+                request: {
+                    host: hit.host,
+                    path: hit.stem,
+                    // query转为js对象，取消 url decode
+                    qury: querystring.parse(hit.qury, '&', '=', {decodeURIComponent: s => s}),
+                    ckie: hit.ckid
+                }
+            }) + '\n');
     });
 }
 
 module.exports = function () {
     return async function (ctx, next) {
-        send(ctx);
+        sendtcp(ctx);
         await next();
     }
 };
