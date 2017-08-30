@@ -3,7 +3,6 @@ const log = new Log('info');
 const http = require('http');
 
 // 发送http request 同步配置文件到shotpot
-// 读取并同步配置文件
 module.exports = function sync2shotpot(rhconf) {
     let data = JSON.stringify(rhconf);
     rhconf.servers.forEach((server) => {

@@ -1,8 +1,12 @@
 const hll = require('hll');
 const rhconf = require('../conf/realhook.json');
+const querystring = require('querystring');
+const iputil = require('./iputil');
 
 let em_status;
+
 initRealObj(rhconf);
+
 function initRealObj(rhconf) {
     em_status = {
         summary: {
@@ -14,8 +18,12 @@ function initRealObj(rhconf) {
             uv_set: hll(),
             iuv_set: hll()
         },
+        areas:[],
         campaigns: []
     };
+    iputil.citys.forEach((city) => {
+        em_status.areas.push({name: city, uv: 0});
+    });
     rhconf.cprules.forEach((cprule) => {
         em_status.summary.campaign += 1;
         em_status.campaigns.push({
@@ -70,7 +78,7 @@ setInterval(() => {
 }, 1000 * 10);
 
 
-function countReal(ctx) {
+function keepReal(ctx) {
     ctx.request.body.forEach((hit) => {
         let query = querystring.parse(hit.qury);
         let mobile = query['WT.mobile'];
@@ -91,9 +99,11 @@ function countReal(ctx) {
     });
 }
 
-module.exports = function () {
+module.exports.keepReal = function () {
     return async function (ctx, next) {
-        countReal(ctx);
+        keepReal(ctx);
         await next();
     }
 };
+
+module.exports.status = em_status;

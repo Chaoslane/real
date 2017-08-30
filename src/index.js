@@ -16,19 +16,18 @@ syncConfig(rhconf);
 const koaBody = require('koa-body');
 const Router = require('koa-router');
 const router = new Router();
+const realstatus = require('./mid_realstatus');
 // const senttcp = require('./mid_sendtcp');
-// const realstatus = require('./mid_realstatus');
 
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
-// router.use(senttcp());
-// router.use(realstatus());
+router.use(realstatus.keepReal());
+// router.use(rhconf.realhook.stat_path, senttcp());
 
 
 router.post(rhconf.realhook.stat_path, async (ctx, next) => {
-    console.log(JSON.stringify(ctx.request.body));
-
+    // console.log(JSON.stringify(ctx.request.body));
 });
 
 server.listen(rhconf.realhook.stat_port, () => {
@@ -42,6 +41,6 @@ const realhook = io.of('/realhook');
 
 realhook.on('connection', (socket) => {
     setInterval(function () {
-        socket.emit('realdata', em_status);
+        socket.emit('realdata', realstatus.status);
     }, 1000);
 });
