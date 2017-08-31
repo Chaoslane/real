@@ -21,8 +21,13 @@ const realstatus = require('./lib/mid_realstatus');
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
-router.use(rhconf.realhook.stat_path, realstatus.keepReal());
-// router.use(rhconf.realhook.stat_path, senttcp());
+// router 调用中间件
+router.post(rhconf.realhook.stat_path, realstatus.keepReal());
+// router.post(rhconf.realhook.stat_path, senttcp());
+
+
+
+
 
 server.listen(rhconf.realhook.stat_port);
 server.on('error', onError);
