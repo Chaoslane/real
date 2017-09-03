@@ -12,29 +12,83 @@
   ],
   "cprules": [
     {
-      "name": "campaign1",
+      "name": "login",
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:WT.bs=360x568)"
+          "pcre": "(?:si_n=YJDL)|(?:si_n=SY_DL)|(?:si_n=DL)"
         }
       ]
     },
     {
-      "name": "campaign2",
+      "name": "llzk",
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:WT.bs=360x111)"
+          "pcre": "(?:nv=ZX_LLZKYH)"
         }
       ]
     },
     {
-      "name": "campaign3",
+      "name": "rwk",
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:WT.bs=360x111)"
+          "pcre": "(?:nv=RWK)"
+        }
+      ]
+    },
+    {
+      "name": "zdcx",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=zdcx)"
+        }
+      ]
+    },
+    {
+      "name": "xdcx",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=xdcx)"
+        }
+      ]
+    },
+    {
+      "name": "llcx",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=llcx)"
+        }
+      ]
+    },
+    {
+      "name": "4gfx",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=4gfx)"
+        }
+      ]
+    },
+    {
+      "name": "4gzx",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=4gzx)"
+        }
+      ]
+    },
+    {
+      "name": "all",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": ".*"
         }
       ]
     }

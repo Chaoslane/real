@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 const Log = require('log');
 const log = new Log('info');
-
-// -------------------koa----------------------
 const Koa = require('koa');
 const app = new Koa();
 const server = require('http').Server(app.callback());
@@ -25,13 +23,23 @@ app.use(router.allowedMethods());
 router.post(rhconf.realhook.stat_path, realstatus.keepReal());
 // router.post(rhconf.realhook.stat_path, senttcp());
 
-
-
-
-
 server.listen(rhconf.realhook.stat_port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
+
+// --------------socket.io--------------------
+const io = require('socket.io')(server);
+const realhook = io.of('/realhook');
+
+realhook.on('connection', (socket) => {
+    setInterval(function () {
+        socket.emit('realdata', realstatus.status);
+    }, 1000);
+});
+
+
 
 /**
  * Event listener for HTTP server "error" event.
@@ -68,14 +76,3 @@ function onListening() {
         : 'port ' + addr.port;
     log.info('Realhook listening on ' + bind);
 }
-
-
-// --------------socket.io--------------------
-const io = require('socket.io')(server);
-const realhook = io.of('/realhook');
-
-realhook.on('connection', (socket) => {
-    setInterval(function () {
-        socket.emit('realdata', realstatus.status);
-    }, 1000);
-});
