@@ -84,7 +84,34 @@
       ]
     },
     {
-      "name": "all",
+      "name": "4gll",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=4gzx)"
+        }
+      ]
+    },
+    {
+      "name": "cxl",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=4gzx)"
+        }
+      ]
+    },
+    {
+      "name": "bll",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:nv=4gzx)"
+        }
+      ]
+    },
+    {
+      "name": "test",
       "rule": [
         {
           "check": "$cs_uri_query",
