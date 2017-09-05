@@ -23,6 +23,8 @@ app.use(router.allowedMethods());
 router.post(rhconf.realhook.stat_path, realstatus.keepReal());
 // router.post(rhconf.realhook.stat_path, senttcp());
 
+// response
+app.use(async ctx => {ctx.body = "OK";});
 
 // --------------socket.io--------------------
 const io = require('socket.io')(server);

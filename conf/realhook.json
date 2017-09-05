@@ -6,8 +6,8 @@
   },
   "servers": [
     {
-      "host": "192.168.4.3",
-      "port": "80"
+      "host": "192.168.4.156",
+      "port": "8080"
     }
   ],
   "cprules": [
@@ -16,7 +16,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=YJDL)|(?:si_n=SY_DL)|(?:si_n=DL)"
+          "pcre": "(?:si_n=YJDL|si_n=SY_DL|si_n=DL)"
         }
       ]
     },
@@ -43,7 +43,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=zdcx)"
+          "pcre": "(?:si_n=2002)"
         }
       ]
     },
@@ -52,7 +52,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=xdcx)"
+          "pcre": "(?:si_n=2003)"
         }
       ]
     },
@@ -61,7 +61,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=llcx)"
+          "pcre": "(?:si_n=2012)"
         }
       ]
     },
@@ -70,7 +70,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=4gfx)"
+          "pcre": "(?:si_n=4GFXTC_[0-9A-C]+_TC|si_n=4GLLK)"
         }
       ]
     },
@@ -79,7 +79,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=4gzx)"
+          "pcre": "(?:si_n=4GFXTC_[0-9]+_[0-9]+_TC)"
         }
       ]
     },
@@ -88,7 +88,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=4gzx)"
+          "pcre": "(?:si_n=4GLLB)"
         }
       ]
     },
@@ -97,7 +97,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=4gzx)"
+          "pcre": "(?:si_n=IQ_)"
         }
       ]
     },
@@ -106,16 +106,16 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=4gzx)"
+          "pcre": "(?:si_n=CB_)"
         }
       ]
     },
     {
-      "name": "test",
+      "name": "mobile",
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": ".*"
+          "pcre": "(?:mobile=[0-9]{11})"
         }
       ]
     }
