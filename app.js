@@ -30,11 +30,11 @@ const realhook = io.of('/realhook');
 
 realhook.on('connection', (socket) => {
     log.info(`New connection from: ${socket.handshake.address}`);
-    setInterval(function () {
+    socket.on('getstatus', () => {
         socket.emit('realdata', realstatus.status);
-    }, 1000);
+    });
     socket.on('disconnect', (reason) => {
-        log.info(reason);
+        log.info(`Client exit: ${reason}`);
     });
     socket.on('error', (error) => {
         log.error(error);
