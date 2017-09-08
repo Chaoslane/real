@@ -23,7 +23,10 @@ router.post(rhconf.realhook.stat_path, realstatus.keepReal());
 
 
 // response
-router.post(rhconf.realhook.stat_path, async ctx => {ctx.body = "OK";});
+router.post(rhconf.realhook.stat_path, async ctx => {
+    ctx.body = "OK";
+});
+
 // error handler
 app.on('error', function(err,ctx){
     log.error(err.message);

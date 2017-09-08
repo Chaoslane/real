@@ -1,9 +1,19 @@
-const server = require('../app')
+const server = require('../app');
 const Log = require('log');
 const log = new Log('info');
+const cluster = require('cluster');
+
 
 const rhconf = require('../conf/realhook.json');
 const port = rhconf.realhook.stat_port || 3000;
+
+// if (cluster.isMaster){
+//     for (let i = 0, n = 8; i < n; i += 1){
+//         cluster.fork();
+//     }
+// }else {
+//     server.listen(port);
+// }
 
 server.listen(port);
 server.on('error', onError);

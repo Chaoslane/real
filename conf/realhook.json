@@ -1,7 +1,7 @@
 {
   "realhook": {
     "host": "192.168.4.153",
-    "stat_port": "8089",
+    "stat_port": "8090",
     "stat_path": "/cp_status"
   },
   "servers": [
