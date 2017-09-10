@@ -15,7 +15,7 @@ const Redis = require('ioredis');
 const redis = new Redis(rhconf.redis);
 
 // 同步配置文件到shotpot
-// sync_config(rhconf);
+sync_config(rhconf);
 
 /**
  * 定时从redis取数，生成实时json数据
@@ -199,7 +199,7 @@ function onListening() {
     const bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-    log.info('Realhook listening on ' + bind);
+    log.info('Realhook web socket service listening on ' + bind);
 }
 
 module.exports = server;
