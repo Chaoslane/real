@@ -75,7 +75,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=4GFXTC_[0-9A-C]+_TC|si_n=4GLLK)"
+          "pcre": "(?:si_n=4GFXTC_[0-9]{2}[A-B]{0,1}_TC|si_n=4GLLK)"
         }
       ]
     },
@@ -84,7 +84,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=4GFXTC_[0-9]+_[0-9]+_TC)"
+          "pcre": "(?:si_n=4GFXTC_[0-9]{2,3}_[0-9]{2,3}_TC)"
         }
       ]
     },
@@ -121,6 +121,15 @@
         {
           "check": "$cs_uri_query",
           "pcre": "(?:mobile=[0-9]{11})"
+        }
+      ]
+    },
+    {
+      "name": "mobile",
+      "rule": [
+        {
+          "check": "$cs_uri_query",
+          "pcre": ".*"
         }
       ]
     }

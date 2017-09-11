@@ -7,7 +7,7 @@ const port = rhconf.realhook.stat_port || 3000;
 const port_ws = rhconf.realhook.ws_port || 3001;
 
 if (cluster.isMaster){
-    for (let i = 0, n = 8; i < n; i += 1){
+    for (let i = 0, n = 4; i < n; i += 1){
         cluster.fork();
     }
     const server_ws = require('../app-ws');
