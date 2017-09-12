@@ -39,7 +39,7 @@ const flushStatus = function () {
         }).exec();
 
         if (campaign.iuv !== 0) {
-            campaign.suc_rate = (campaign.suc_time / campaign.iuv).toFixed(2);
+            campaign.suc_rate = (campaign.suc_time / campaign.iuv).toFixed(1);
         }
     });
 
