@@ -1,17 +1,13 @@
 const Log = require('log');
 const log = new Log('info');
 const cluster = require('cluster');
-const rhconf = require('../conf/realhook.json');
 
-const port = rhconf.realhook.stat_port || 3000;
-const port_ws = rhconf.realhook.ws_port || 3001;
 
 if (cluster.isMaster){
     for (let i = 0, n = 4; i < n; i += 1){
         cluster.fork();
     }
-    const server_ws = require('../app-ws');
-    server_ws.listen(port_ws);
+    require('../app-ws');
 
     cluster.on('online', function(worker) {
         log.info('Worker ' + worker.process.pid + ' is online');
@@ -23,6 +19,5 @@ if (cluster.isMaster){
         cluster.fork();
     });
 }else {
-    const server = require('../app-worker');
-    server.listen(port);
+    require('../app-worker');
 }

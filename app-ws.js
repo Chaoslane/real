@@ -14,6 +14,8 @@ const status = require('./lib/mid_realstatus').status;
 const Redis = require('ioredis');
 const redis = new Redis(rhconf.redis);
 
+const port = rhconf.realhook.ws_port || 3001;
+
 // 同步配置文件到shotpot
 sync_config(rhconf);
 
@@ -158,6 +160,7 @@ realhook.on('connection', (socket) => {
     });
 });
 
+server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 

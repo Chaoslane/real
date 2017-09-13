@@ -123,15 +123,6 @@
           "pcre": "(?:mobile=[0-9]{11})"
         }
       ]
-    },
-    {
-      "name": "mobile",
-      "rule": [
-        {
-          "check": "$cs_uri_query",
-          "pcre": ".*"
-        }
-      ]
     }
   ]
 }

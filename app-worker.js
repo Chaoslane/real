@@ -32,6 +32,7 @@ app.on('error', function(err,ctx){
     log.error(err.message);
 });
 
+server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 

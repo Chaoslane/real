@@ -1,8 +1,7 @@
 #!/bin/bash
 redis-cli flushall
 
-arg1="&WT.si_n=SY_DL&"
-
+arg1="&WT.nv=ZX_LLZKYH&"
 
 for i in `seq $1`; do
   mobile=11`date +%N`
