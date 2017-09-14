@@ -18,17 +18,20 @@ const port = rhconf.realhook.ws_port || 3001;
 
 // 同步配置文件到shotpot
 sync_config(rhconf);
+// 初始化redis
+redis.flushall();
+
 
 /**
  * 定时从redis取数，生成实时json数据
  */
 const flushStatus = function () {
     redis.pipeline().get('summary_pv', (err, result) => {
-        status.summary.pv = result;
+        if (result > 0) status.summary.pv = result;
     }).pfcount('summary_uv', (err, result) => {
-        status.summary.uv = result;
+        if (result > 0) status.summary.uv = result;
     }).pfcount('summary_iuv', (err, result) => {
-        status.summary.iuv = result;
+        if (result > 0) status.summary.iuv = result;
     }).exec();
 
     status.campaigns.forEach((campaign) => {
@@ -40,8 +43,8 @@ const flushStatus = function () {
             if (result > 0) campaign.suc_time = result;
         }).exec();
 
-        if (campaign.iuv !== 0) {
-            campaign.suc_rate = (campaign.suc_time / campaign.iuv).toFixed(1);
+        if (campaign.uv !== 0) {
+            campaign.suc_rate = campaign.suc_time / campaign.uv;
         }
     });
 
@@ -49,6 +52,7 @@ const flushStatus = function () {
     if (tick.getSeconds() === 0) {
         if (tick.getHours() === 0 && tick.getMinutes() === 0) {
             log.info('Re initial status every midnight');
+
             redis.flushall();
             status.summary.pv = 0;
             status.summary.uv = 0;
@@ -101,8 +105,8 @@ const flushStatus = function () {
                 let historyUv = campaign.history_uv;
                 if (historyUv.length > 288) {
                     historyUv.shift();
-                    if (historyUv[0] !== 0) {
-                        campaign.chain_uv = (campaign.uv / historyUv[0] - 1).toFixed(2);
+                    if (historyUv[0] && historyUv[0] !== 0) {
+                        campaign.chain_uv = (campaign.uv / historyUv[0]).toFixed(2);
                     }
                 }
                 if (historyUv.length > 1) {
@@ -114,8 +118,8 @@ const flushStatus = function () {
                 let historyIuv = campaign.history_iuv;
                 if (historyIuv.length > 288) {
                     historyIuv.shift();
-                    if (historyIuv[0] !== 0) {
-                        campaign.chain_iuv = (campaign.iuv / historyIuv[0] - 1).toFixed(2);
+                    if (historyIuv[0] && historyIuv[0] !== 0) {
+                        campaign.chain_iuv = (campaign.iuv / historyIuv[0]).toFixed(2);
                     }
                 }
                 if (historyIuv.length > 1) {
@@ -129,12 +133,12 @@ const flushStatus = function () {
                 let historySuc = campaign.history_suc;
                 if (historySuc.length > 288) {
                     historySuc.shift();
-                    if (historySuc[0] !== 0) {
-                        campaign.chain_suc = (campaign.suc_rate / historySuc[0] - 1).toFixed(2);
+                    if (historySuc[0] && historySuc[0] !== 0) {
+                        campaign.chain_suc = (campaign.suc_rate / historySuc[0]).toFixed(2);
                     }
                 }
                 if (historySuc.length > 1) {
-                    campaign.speed_suc = campaign.speed_suc - historySuc[historySuc.length - 1];
+                    campaign.speed_suc = Math.floor((campaign.suc_rate - historySuc[historySuc.length - 1]) * campaign.iuv);
                 }
                 historySuc.push(campaign.suc_rate);
             });
@@ -160,9 +164,11 @@ realhook.on('connection', (socket) => {
     });
 });
 
+
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
 
 /**
  * Event listener for HTTP server "error" event.
@@ -199,5 +205,3 @@ function onListening() {
         : 'port ' + addr.port;
     log.info('Realhook web socket service listening on ' + bind);
 }
-
-module.exports = server;

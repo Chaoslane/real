@@ -75,7 +75,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=4GFXTC_[0-9]{2}[A-B]{0,1}_TC|si_n=4GLLK)"
+          "pcre": "(?:si_s=4GFXTC_[0-9]{2}[A-B]{0,1}_TC|si_n=4GLLK)"
         }
       ]
     },
@@ -84,7 +84,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=4GFXTC_[0-9]{2,3}_[0-9]{2,3}_TC)"
+          "pcre": "(?:si_s=4GFXTC_[0-9]{2,3}_[0-9]{2,3}_TC)"
         }
       ]
     },
@@ -93,7 +93,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=4GLLB)"
+          "pcre": "(?:si_s=4GLLB)"
         }
       ]
     },
