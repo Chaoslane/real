@@ -8,7 +8,6 @@ const Log = require('log');
 const log = new Log('info');
 
 const rhconf = require('./conf/realhook.json');
-const sync_config = require('./lib/sync_config');
 const status = require('./lib/mid_realstatus').status;
 
 const Redis = require('ioredis');
@@ -16,11 +15,8 @@ const redis = new Redis(rhconf.redis);
 
 const port = rhconf.realhook.ws_port || 3001;
 
-// 同步配置文件到shotpot
-sync_config(rhconf);
 // 初始化redis
 redis.flushall();
-
 
 /**
  * 定时从redis取数，生成实时json数据
@@ -52,13 +48,22 @@ const flushStatus = function () {
     if (tick.getSeconds() === 0) {
         if (tick.getHours() === 0 && tick.getMinutes() === 0) {
             log.info('Re initial status every midnight');
-
-            redis.flushall();
+            redis.pipeline()
+                .del('summary_pv')
+                .del('summary_uv')
+                .del('summary_iuv')
+                .exec();
             status.summary.pv = 0;
             status.summary.uv = 0;
             status.summary.iuv = 0;
 
             status.campaigns.forEach((campaign) => {
+                redis.pipeline()
+                    .del(`${campaign.name}_uv`)
+                    .del(`${campaign.name}_iuv`)
+                    .del(`${campaign.name}_suc`)
+                    .del(`${campaign.name}_isuc`)
+                    .exec();
                 campaign.uv = 0;
                 campaign.iuv = 0;
                 campaign.suc_time = 0;
@@ -68,7 +73,7 @@ const flushStatus = function () {
 
         // 每5分钟更新一次数组，shift+push
         // 每个数组保存288个元素 用于计算日环比
-        if (tick.getMinutes() % 5 === 0) {
+        if (tick.getMinutes() % 1 === 0) {
             log.info('Flush status every 5 minutes');
             // UV
             let h_uv = status.summary.history_uv;
@@ -76,7 +81,7 @@ const flushStatus = function () {
                 h_uv.shift();
                 if (h_uv[0] !== 0) {
                     // 当前计数除以数组索引为0的计数 即为日环比
-                    status.summary.chain_uv = (status.summary.uv / h_uv[0] - 1).toFixed(2);
+                    status.summary.chain_uv = (status.summary.uv / h_uv[0]).toFixed(2);
                 }
             }
             if (h_uv.length > 1) {
@@ -89,7 +94,7 @@ const flushStatus = function () {
             if (h_iuv.length > 288) {
                 h_iuv.shift();
                 if (h_iuv[0] !== 0) {
-                    status.summary.chain_iuv = (status.summary.iuv / h_iuv[0] - 1).toFixed(2);
+                    status.summary.chain_iuv = (status.summary.iuv / h_iuv[0]).toFixed(2);
                 }
             }
             if (h_iuv.length > 1) {
@@ -101,7 +106,7 @@ const flushStatus = function () {
 
             // 遍历 campaigns 并计算
             status.campaigns.forEach((campaign) => {
-                // UV
+                // 累计UV
                 let historyUv = campaign.history_uv;
                 if (historyUv.length > 288) {
                     historyUv.shift();
@@ -129,18 +134,25 @@ const flushStatus = function () {
                 campaign.iuv = 0;
                 redis.del(`${campaign.name}_iuv`);
 
-                // 成功率
+                // 累计成功量
                 let historySuc = campaign.history_suc;
                 if (historySuc.length > 288) {
                     historySuc.shift();
                     if (historySuc[0] && historySuc[0] !== 0) {
-                        campaign.chain_suc = (campaign.suc_rate / historySuc[0]).toFixed(2);
+                        campaign.chain_suc = (campaign.suc_time / historySuc[0]).toFixed(2);
                     }
                 }
                 if (historySuc.length > 1) {
-                    campaign.speed_suc = Math.floor((campaign.suc_rate - historySuc[historySuc.length - 1]) * campaign.iuv);
+                    campaign.speed_suc = (campaign.suc_time - historySuc[historySuc.length - 1]);
                 }
-                historySuc.push(campaign.suc_rate);
+                historySuc.push(campaign.suc_time);
+
+                // 当前成功量
+                let historyIsuc = campaign.history_isuc;
+                if (historyIsuc.length > 12) {
+                    historyIsuc.shift();
+                }
+                historyIsuc.push(campaign.isuc_time);
             });
         }
     }

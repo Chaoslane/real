@@ -15,12 +15,25 @@ const port = rhconf.realhook.stat_port || 3000;
 const koaBody = require('koa-body');
 const Router = require('koa-router');
 const router = new Router();
-const realstatus = require('./lib/mid_realstatus');
 
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
-router.post(rhconf.realhook.stat_path, realstatus.keepReal());
+
+
+const properties = process.argv;
+
+if (properties.find(str => str.indexOf('-t') > -1)){
+    log.info(`Start trans log to flume module`);
+    const sendtcp = require('./lib/mid_sendtcp');
+    router.post(rhconf.realhook.stat_path, sendtcp());
+}
+
+if (properties.find(str => str.indexOf('-r') > -1)){
+    log.info(`Start real time analysis module`);
+    const realstatus = require('./lib/mid_realstatus');
+    router.post(rhconf.realhook.stat_path, realstatus.keepReal());
+}
 
 // response
 router.post(rhconf.realhook.stat_path, async ctx => {

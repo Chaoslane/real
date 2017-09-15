@@ -1,13 +1,32 @@
 const Log = require('log');
 const log = new Log('info');
 const cluster = require('cluster');
+const program = require('commander');
+
+const rhconf = require('../conf/realhook.json');
+const sync_config = require('../lib/sync_config');
+
+
+program
+    .version('2.0.0')
+    .option('-n, --numcores <n>', '指定启动程序的vcore数量', 4)
+    .option('-r, --real',  '实时数据分析模式，实时统计分析日志')
+    .option('-t, --trans', '转发模式，TCP形式转发日志到flume')
+    .parse(process.argv);
 
 
 if (cluster.isMaster){
-    for (let i = 0, n = 4; i < n; i += 1){
+    for (let i = 0, n = program.numcores; i < n; i += 1){
         cluster.fork();
     }
-    require('../app-ws');
+
+    // 同步配置文件到shotpot
+    sync_config(rhconf);
+    // 载入socket.io模块
+    if (program.real) {
+        log.info('Start webservice module');
+        require('../app-ws');
+    }
 
     cluster.on('online', function(worker) {
         log.info('Worker ' + worker.process.pid + ' is online');
@@ -18,6 +37,8 @@ if (cluster.isMaster){
         log.warning('Starting a new worker');
         cluster.fork();
     });
+
 }else {
+    log.info('Start worker module');
     require('../app-worker');
 }

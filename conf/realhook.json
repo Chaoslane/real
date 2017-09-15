@@ -15,6 +15,10 @@
     "host" : "192.168.4.2",
     "port" : "6379"
   },
+  "tcpserver" : {
+    "host" : "192.168.4.5",
+    "port" : "6789"
+  },
   "cprules": [
     {
       "name": "login",
