@@ -20,17 +20,16 @@ app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-
 const properties = process.argv;
 
 if (properties.find(str => str.indexOf('-t') > -1)){
-    log.info(`Start trans log to flume module`);
+    log.info(`Start send tcp middleware, trans logs to flume.`);
     const sendtcp = require('./lib/mid_sendtcp');
     router.post(rhconf.realhook.stat_path, sendtcp());
 }
 
 if (properties.find(str => str.indexOf('-r') > -1)){
-    log.info(`Start real time analysis module`);
+    log.info(`Start real analysis middleware, set real status to redis.`);
     const realstatus = require('./lib/mid_realstatus');
     router.post(rhconf.realhook.stat_path, realstatus.keepReal());
 }
@@ -73,6 +72,7 @@ function onError(error) {
             throw error;
     }
 }
+
 /**
  * Event listener for HTTP server "listening" event.
  */

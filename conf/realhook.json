@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "host": "192.168.4.156",
+      "host": "192.168.4.2",
       "port": "8080"
     }
   ],
@@ -43,7 +43,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=RWK)"
+          "pcre": "(?:nv=RWK|nv=ZX_RWK)"
         }
       ]
     },
