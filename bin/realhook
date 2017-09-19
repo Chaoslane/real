@@ -5,7 +5,6 @@ const log = new Log('info');
 const cluster = require('cluster');
 const program = require('commander');
 
-
 const rhconf = require('../conf/realhook.json');
 const sync_config = require('../lib/sync_config');
 
