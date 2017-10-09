@@ -73,7 +73,7 @@ const flushStatus = function () {
 
         // 每5分钟更新一次数组，shift+push
         // 每个数组保存288个元素 用于计算日环比
-        if (tick.getMinutes() % 1 === 0) {
+        if (tick.getMinutes() % 5 === 0) {
             log.info('Flush status every 5 minutes');
             // UV
             let h_uv = status.summary.history_uv;
