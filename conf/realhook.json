@@ -1,6 +1,6 @@
 {
   "realhook": {
-    "host": "192.168.4.153",
+    "host": "192.168.4.2",
     "stat_port": "8089",
     "stat_path": "/cp_status",
     "ws_port": "8090"
