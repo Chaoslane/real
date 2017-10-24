@@ -1,0 +1,76 @@
+{
+  "ipInfo": [
+    {
+      "alias": "A",
+      "city": "郑州市"
+    },
+    {
+      "alias": "B",
+      "city": "开封市"
+    },
+    {
+      "alias": "C",
+      "city": "洛阳市"
+    },
+    {
+      "alias": "D",
+      "city": "平顶山市"
+    },
+    {
+      "alias": "E",
+      "city": "安阳市"
+    },
+    {
+      "alias": "F",
+      "city": "鹤壁市"
+    },
+    {
+      "alias": "G",
+      "city": "新乡市"
+    },
+    {
+      "alias": "H",
+      "city": "焦作市"
+    },
+    {
+      "alias": "J",
+      "city": "濮阳市"
+    },
+    {
+      "alias": "K",
+      "city": "许昌市"
+    },
+    {
+      "alias": "L",
+      "city": "漯河市"
+    },
+    {
+      "alias": "M",
+      "city": "三门峡市"
+    },
+    {
+      "alias": "R",
+      "city": "南阳市"
+    },
+    {
+      "alias": "N",
+      "city": "商丘市"
+    },
+    {
+      "alias": "S",
+      "city": "信阳市"
+    },
+    {
+      "alias": "P",
+      "city": "周口市"
+    },
+    {
+      "alias": "Q",
+      "city": "驻马店市"
+    },
+    {
+      "alias": "U",
+      "city": "济源市"
+    }
+  ]
+}
