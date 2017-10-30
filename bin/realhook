@@ -6,7 +6,7 @@ const cluster = require('cluster');
 const program = require('commander');
 
 const rhconf = require('../conf/realhook.json');
-const sync_config = require('../lib/sync_config');
+const utils = require('../lib/utils');
 
 
 program
@@ -25,7 +25,7 @@ if (!process.argv.slice(2).length) {
 if (cluster.isMaster){
     // 设置延迟启动，在子进程启动之后，同步配置文件到shotpot
     setTimeout(()=>{
-        sync_config(rhconf)
+        utils.sync2shotpot(rhconf);
     },5000);
 
     // 载入socket.io模块
