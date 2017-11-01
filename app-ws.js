@@ -10,35 +10,82 @@ const log = new Log('info');
 const rhconf = require('./conf/realhook.json');
 const status = require('./lib/mid_realstatus').status;
 
-const Redis = require('ioredis');
-const redis = new Redis(rhconf.redis);
+const redis = require('redis');
+const redisClient = redis.createClient(rhconf.redis);
 
-const port = rhconf.realhook.ws_port || 3001;
+const port = rhconf.realhook.websocket_port;
 
 // 初始化redis
-redis.flushall();
+redisClient.flushdb();
+
+
+/**
+ * 计算日环比，需要保留每个时间刻度的值，两天相同时刻的值做除法
+ * 数组较长，需要从redis中存取
+ * @param key redis key
+ * @param value 当前时间刻度的值
+ * @returns {number}
+ */
+const operChain = (key, value) => {
+    redisClient.rpush(key, value);
+    redisClient.llen(key, (err, result) => {
+        if (result > 288)
+            redisClient.lpop(key);
+    });
+    redisClient.lindex(key, 0, (err, first) => {
+        if (first!=0){
+            redisClient.lindex(key, -1, (err, last) => {
+                return (last/first).toFixed(2);
+            });
+        }
+    });
+    return 0;
+};
+
+
+/**
+ * 求速率，当前时间刻度减去上个时间刻度的值
+ * @param array json串中的数组
+ * @param value 当前时间刻度的值
+ * @returns {number}
+ */
+const operSpeed = (array, value) => {
+    array.push(value);
+    if (array.length > 20) array.shift();
+    // 当前计数减去上一个计数 即为速率
+    const last = array[array.length - 1];
+    const last1 = array[array.length - 2];
+    if (last && last != 0) {
+        return last - last1;
+    }
+    return 0;
+};
+
 
 /**
  * 定时从redis取数，生成实时json数据
  */
 const flushStatus = function () {
-    redis.pipeline().get('summary_pv', (err, result) => {
+    redisClient.get('summary_pv', (err, result) => {
         if (result > 0) status.summary.pv = result;
-    }).pfcount('summary_uv', (err, result) => {
+    });
+    redisClient.pfcount('summary_uv', (err, result) => {
         if (result > 0) status.summary.uv = result;
-    }).pfcount('summary_iuv', (err, result) => {
+    });
+    redisClient.pfcount('summary_iuv', (err, result) => {
         if (result > 0) status.summary.iuv = result;
-    }).exec();
+    });
 
     status.campaigns.forEach((campaign) => {
-        redis.pipeline().pfcount(`${campaign.name}_uv`, (err, result) => {
+        redisClient.pfcount(`${campaign.name}_uv`, (err, result) => {
             if (result > 0) campaign.uv = result;
-        }).pfcount(`${campaign.name}_iuv`, (err, result) => {
+        });
+        redisClient.pfcount(`${campaign.name}_iuv`, (err, result) => {
             if (result > 0) campaign.iuv = result;
-        }).get(`${campaign.name}_suc`, (err, result) => {
+        })
+        redisClient.get(`${campaign.name}_suc`, (err, result) => {
             if (result > 0) campaign.suc_time = result;
-        }).exec();
-
+        });
         if (campaign.uv !== 0) {
             campaign.suc_rate = campaign.suc_time / campaign.uv;
         }
@@ -46,26 +93,18 @@ const flushStatus = function () {
 
     let tick = new Date();
     if (tick.getSeconds() === 0) {
+        // 0点归零所有计数
         if (tick.getHours() === 0 && tick.getMinutes() === 0) {
             log.info('Re initial status every midnight');
-            redis.pipeline()
-                .del('summary_pv')
-                .del('summary_uv')
-                .del('summary_iuv')
-                .exec();
+            redisClient.del('summary_pv');
+            redisClient.del('summary_uv');
             status.summary.pv = 0;
             status.summary.uv = 0;
-            status.summary.iuv = 0;
 
             status.campaigns.forEach((campaign) => {
-                redis.pipeline()
-                    .del(`${campaign.name}_uv`)
-                    .del(`${campaign.name}_iuv`)
-                    .del(`${campaign.name}_suc`)
-                    .del(`${campaign.name}_isuc`)
-                    .exec();
+                redisClient.del(`${campaign.name}_uv`);
+                redisClient.del(`${campaign.name}_suc`);
                 campaign.uv = 0;
-                campaign.iuv = 0;
                 campaign.suc_time = 0;
                 campaign.suc_rate = 0;
             });
@@ -76,89 +115,40 @@ const flushStatus = function () {
         if (tick.getMinutes() % 5 === 0) {
             log.info('Flush status every 5 minutes');
             // UV
-            let h_uv = status.summary.history_uv;
-            if (h_uv.length > 288) {
-                h_uv.shift();
-                if (h_uv[0] !== 0) {
-                    // 当前计数除以数组索引为0的计数 即为日环比
-                    status.summary.chain_uv = (status.summary.uv / h_uv[0]).toFixed(2);
-                }
-            }
-            if (h_uv.length > 1) {
-                status.summary.speed_uv = status.summary.uv - h_uv[h_uv.length - 1];
-            }
-            h_uv.push(status.summary.uv);
+            status.summary.chain_uv = operChain("summary_h_uv", status.summary.uv);
+            status.summary.speed_uv = operSpeed(status.summary.history_uv, status.summary.uv);
 
             // IUV
-            let h_iuv = status.summary.history_iuv;
-            if (h_iuv.length > 288) {
-                h_iuv.shift();
-                if (h_iuv[0] !== 0) {
-                    status.summary.chain_iuv = (status.summary.iuv / h_iuv[0]).toFixed(2);
-                }
-            }
-            if (h_iuv.length > 1) {
-                status.summary.speed_iuv = status.summary.iuv - h_iuv[h_iuv.length - 1];
-            }
-            h_iuv.push(status.summary.iuv);
+            status.summary.chain_iuv = operChain("summary_h_iuv", status.summary.iuv);
+            status.summary.speed_iuv = operSpeed(status.summary.history_iuv, status.summary.iuv);
             status.summary.iuv = 0;
-            redis.del(`summary_iuv`);
+            redisClient.del(`summary_iuv`);
 
-            // 遍历 campaigns 并计算
+            // 遍历campaigns
             status.campaigns.forEach((campaign) => {
                 // 累计UV
-                let historyUv = campaign.history_uv;
-                if (historyUv.length > 288) {
-                    historyUv.shift();
-                    if (historyUv[0] && historyUv[0] !== 0) {
-                        campaign.chain_uv = (campaign.uv / historyUv[0]).toFixed(2);
-                    }
-                }
-                if (historyUv.length > 1) {
-                    campaign.speed_uv = campaign.uv - historyUv[historyUv.length - 1];
-                }
-                historyUv.push(campaign.uv);
+                campaign.chain_iuv = operChain(`${campaign.name}_h_uv`, campaign.uv);
+                campaign.speed_uv = operSpeed(campaign.history_uv, campaign.uv);
 
                 // IUV
-                let historyIuv = campaign.history_iuv;
-                if (historyIuv.length > 288) {
-                    historyIuv.shift();
-                    if (historyIuv[0] && historyIuv[0] !== 0) {
-                        campaign.chain_iuv = (campaign.iuv / historyIuv[0]).toFixed(2);
-                    }
-                }
-                if (historyIuv.length > 1) {
-                    campaign.speed_iuv = campaign.iuv - historyIuv[historyIuv.length - 1];
-                }
-                historyIuv.push(campaign.iuv);
+                campaign.chain_iuv = operChain(`${campaign.name}_h_iuv`, campaign.iuv);
+                campaign.speed_iuv = operSpeed(campaign.history_iuv, campaign.iuv);
                 campaign.iuv = 0;
-                redis.del(`${campaign.name}_iuv`);
+                redisClient.del(`${campaign.name}_iuv`);
 
                 // 累计成功量
-                let historySuc = campaign.history_suc;
-                if (historySuc.length > 288) {
-                    historySuc.shift();
-                    if (historySuc[0] && historySuc[0] !== 0) {
-                        campaign.chain_suc = (campaign.suc_time / historySuc[0]).toFixed(2);
-                    }
-                }
-                if (historySuc.length > 1) {
-                    campaign.speed_suc = (campaign.suc_time - historySuc[historySuc.length - 1]);
-                }
-                historySuc.push(campaign.suc_time);
+                campaign.chain_suc = operChain(`${campaign.name}_h_suc;`, campaign.suc_time);
+                campaign.speed_suc = operSpeed(campaign.history_suc, campaign.suc_time)
 
                 // 当前成功量
-                let historyIsuc = campaign.history_isuc;
-                if (historyIsuc.length > 12) {
-                    historyIsuc.shift();
-                }
-                historyIsuc.push(campaign.isuc_time);
+                operSpeed(campaign.history_isuc, campaign.isuc_time);
             });
         }
     }
 };
 
 setInterval(flushStatus, 1000);
+
 
 /**
  *  socket.io 实时同步数据到 client
@@ -178,42 +168,13 @@ realhook.on('connection', (socket) => {
 
 
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.on('error', (err)=> {
+    log.error(`Start webSocket service failed`);
+    throw err;
+});
+server.on('listening', ()=>{
+    log.info(`Start real analysis module, WebSocket is listen on ${port}.`)
+});
 
 
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
-    const bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            log.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            log.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
-            throw error;
-    }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-    const addr = server.address();
-    const bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-    log.info('Realhook web socket service listening on ' + bind);
-}
+module.exports = server;
