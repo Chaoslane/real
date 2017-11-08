@@ -6,14 +6,14 @@ const realhook = io.of('/realhook');
 
 const Log = require('log');
 const log = new Log('info');
-
+const schedule = require('node-schedule');
 const rhconf = require('./conf/realhook.json');
 const status = require('./lib/mid_realstatus').status;
 
 const redis = require('redis');
 const redisClient = redis.createClient(rhconf.redis);
-
 const port = rhconf.realhook.websocket_port;
+
 
 // 初始化redis
 redisClient.flushdb();
@@ -63,7 +63,7 @@ const operSpeed = (array, value) => {
 
 
 /**
- * 定时从redis取数，生成实时json数据
+ * 每秒从redis中读取UV值
  */
 const flushStatus = function () {
     redisClient.get('summary_pv', (err, result) => {
@@ -74,6 +74,15 @@ const flushStatus = function () {
     });
     redisClient.pfcount('summary_iuv', (err, result) => {
         if (result > 0) status.summary.iuv = result;
+    });
+
+    status.areas.forEach((area) => {
+        redisClient.pfcount(`${area.alias}_uv`, (err, result) => {
+            if (result > 0) area.uv = result;
+        });
+        redisClient.pfcount(`${area.alias}_iuv`, (err, result) => {
+            if (result > 0) area.iuv = result;
+        });
     });
 
     status.campaigns.forEach((campaign) => {
@@ -90,64 +99,86 @@ const flushStatus = function () {
             campaign.suc_rate = campaign.suc_time / campaign.uv;
         }
     });
-
-    let tick = new Date();
-    if (tick.getSeconds() === 0) {
-        // 0点归零所有计数
-        if (tick.getHours() === 0 && tick.getMinutes() === 0) {
-            log.info('Re initial status every midnight');
-            redisClient.del('summary_pv');
-            redisClient.del('summary_uv');
-            status.summary.pv = 0;
-            status.summary.uv = 0;
-
-            status.campaigns.forEach((campaign) => {
-                redisClient.del(`${campaign.name}_uv`);
-                redisClient.del(`${campaign.name}_suc`);
-                campaign.uv = 0;
-                campaign.suc_time = 0;
-                campaign.suc_rate = 0;
-            });
-        }
-
-        // 每5分钟更新一次数组，shift+push
-        // 每个数组保存288个元素 用于计算日环比
-        if (tick.getMinutes() % 5 === 0) {
-            log.info('Flush status every 5 minutes');
-            // UV
-            status.summary.chain_uv = operChain("summary_h_uv", status.summary.uv);
-            status.summary.speed_uv = operSpeed(status.summary.history_uv, status.summary.uv);
-
-            // IUV
-            status.summary.chain_iuv = operChain("summary_h_iuv", status.summary.iuv);
-            status.summary.speed_iuv = operSpeed(status.summary.history_iuv, status.summary.iuv);
-            status.summary.iuv = 0;
-            redisClient.del(`summary_iuv`);
-
-            // 遍历campaigns
-            status.campaigns.forEach((campaign) => {
-                // 累计UV
-                campaign.chain_iuv = operChain(`${campaign.name}_h_uv`, campaign.uv);
-                campaign.speed_uv = operSpeed(campaign.history_uv, campaign.uv);
-
-                // IUV
-                campaign.chain_iuv = operChain(`${campaign.name}_h_iuv`, campaign.iuv);
-                campaign.speed_iuv = operSpeed(campaign.history_iuv, campaign.iuv);
-                campaign.iuv = 0;
-                redisClient.del(`${campaign.name}_iuv`);
-
-                // 累计成功量
-                campaign.chain_suc = operChain(`${campaign.name}_h_suc;`, campaign.suc_time);
-                campaign.speed_suc = operSpeed(campaign.history_suc, campaign.suc_time)
-
-                // 当前成功量
-                operSpeed(campaign.history_isuc, campaign.isuc_time);
-            });
-        }
-    }
 };
 
+
+/*
+ * 每五分钟从把当前UV值等，推入数组，更新数组，计算值。
+ */
+const flush5Minutes = function () {
+    // 每5分钟更新一次数组，shift+push
+    // 每个数组保存288个元素 用于计算日环比
+    // UV
+    status.summary.chain_uv = operChain("summary_h_uv", status.summary.uv);
+    status.summary.speed_uv = operSpeed(status.summary.history_uv, status.summary.uv);
+
+    // IUV
+    status.summary.chain_iuv = operChain("summary_h_iuv", status.summary.iuv);
+    status.summary.speed_iuv = operSpeed(status.summary.history_iuv, status.summary.iuv);
+    status.summary.iuv = 0;
+    redisClient.del(`summary_iuv`);
+
+    // 遍历areas
+    status.areas.forEach((area) => {
+        redisClient.del(`${area.alias}_iuv`);
+        area.iuv = 0;
+    });
+
+    // 遍历campaigns
+    status.campaigns.forEach((campaign) => {
+        // 累计UV
+        campaign.chain_iuv = operChain(`${campaign.name}_h_uv`, campaign.uv);
+        campaign.speed_uv = operSpeed(campaign.history_uv, campaign.uv);
+
+        // IUV
+        campaign.chain_iuv = operChain(`${campaign.name}_h_iuv`, campaign.iuv);
+        campaign.speed_iuv = operSpeed(campaign.history_iuv, campaign.iuv);
+        campaign.iuv = 0;
+        redisClient.del(`${campaign.name}_iuv`);
+
+        // 累计成功量
+        campaign.chain_suc = operChain(`${campaign.name}_h_suc;`, campaign.suc_time);
+        campaign.speed_suc = operSpeed(campaign.history_suc, campaign.suc_time)
+
+        // 当前成功量
+        operSpeed(campaign.history_isuc, campaign.isuc_time);
+    });
+};
+
+/*
+ * 每天凌晨刷新所有数据，但不包括history相关数组
+ */
+const flushMidNight = function () {
+    redisClient.del('summary_pv');
+    redisClient.del('summary_uv');
+    status.summary.pv = 0;
+    status.summary.uv = 0;
+
+    status.areas.forEach((area) => {
+        redisClient.del(`${area.alias}_uv`);
+        redisClient.del(`${area.alias}_iuv`);
+        area.uv = 0;
+    });
+
+    status.campaigns.forEach((campaign) => {
+        redisClient.del(`${campaign.name}_uv`);
+        redisClient.del(`${campaign.name}_suc`);
+        campaign.uv = 0;
+        campaign.suc_time = 0;
+        campaign.suc_rate = 0;
+    });
+}
+
+
 setInterval(flushStatus, 1000);
+schedule.scheduleJob('*/5 * * * *', function () {
+    log.info("Flush status every 5 minutes");
+    flush5Minutes();
+});
+schedule.scheduleJob('0 0 * * *', function () {
+    log.info("Reinitial status every midnight");
+    flushMidNight();
+});
 
 
 /**
@@ -173,7 +204,7 @@ server.on('error', (err)=> {
     throw err;
 });
 server.on('listening', ()=>{
-    log.info(`Start real analysis module, WebSocket is listen on ${port}.`)
+    log.info(`WebSocket is listen on ${port}.`)
 });
 
 

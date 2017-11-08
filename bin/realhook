@@ -29,6 +29,7 @@ if (cluster.isMaster){
 
     // 载入socket.io模块
     if (program.real) {
+        log.info(`Start real analysis module.`)
         require('../app-ws');
     }else if (program.trans){
         log.info(`Start send tcp module, trans logs to flume.`)
