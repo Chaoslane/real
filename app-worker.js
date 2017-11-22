@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 
-const cluster = require('cluster');
 const Log = require('log');
 const log = new Log('info');
+
 const Koa = require('koa');
+
+const path = require('path');
+const static = require('koa-static');
+const staticPath = './static';
+
 const app = new Koa();
 const server = require('http').Server(app.callback());
 
@@ -19,6 +24,10 @@ const router = new Router();
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
+
+app.use(static(
+    path.join(__dirname, staticPath)
+));
 
 const properties = process.argv;
 
