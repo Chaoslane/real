@@ -6,18 +6,18 @@ const realhook = io.of('/realhook');
 
 const Log = require('log');
 const log = new Log('info');
+const fs = require('fs');
+
 const schedule = require('node-schedule');
-const rhconf = require('./conf/realhook.json');
 const status = require('./lib/mid_realstatus').status;
+const utils = require('./lib/utils');
 
 const redis = require('redis');
 const redisClient = redis.createClient(rhconf.redis);
 const port = rhconf.realhook.websocket_port;
 
-
 // 初始化redis
 redisClient.flushdb();
-
 
 /**
  * 计算日环比，需要保留每个时间刻度的值，两天相同时刻的值做除法
@@ -92,11 +92,11 @@ const flushStatus = function () {
         redisClient.pfcount(`${campaign.name}_iuv`, (err, result) => {
             if (result > 0) campaign.iuv = result;
         })
-        redisClient.get(`${campaign.name}_suc`, (err, result) => {
+        redisClient.pfcount(`${campaign.name}_suc`, (err, result) => {
             if (result > 0) campaign.suc_time = result;
         });
         if (campaign.uv !== 0) {
-            campaign.suc_rate = campaign.suc_time / campaign.uv;
+            campaign.suc_rate = campaign.suc_time / campaign.uv * 100;
         }
     });
 };
@@ -149,6 +149,7 @@ const flush5Minutes = function () {
  * 每天凌晨刷新所有数据，但不包括history相关数组
  */
 const flushMidNight = function () {
+    log.info("Reinitial status every midnight");
     redisClient.del('summary_pv');
     redisClient.del('summary_uv');
     status.summary.pv = 0;
@@ -169,14 +170,27 @@ const flushMidNight = function () {
     });
 }
 
+/*
+ * 检查uv数是否增长，不增长则重新发送request到sp
+ */
+const checkHealth = function () {
+    if (status.summary.uv ===
+        status.summary.history_uv[status.summary.history_uv.length-1]){
+        log.warning("Checked shotpot connection unhealthy, request shotpot again.")
+        utils.sync2shotpot(rhconf);
+    }
+}
 
+
+// 定时任务
 setInterval(flushStatus, 1000);
 schedule.scheduleJob('*/5 * * * *', function () {
-    log.info("Flush status every 5 minutes");
     flush5Minutes();
 });
+schedule.scheduleJob('*/3 * * * *', function () {
+    checkHealth();
+});
 schedule.scheduleJob('0 0 * * *', function () {
-    log.info("Reinitial status every midnight");
     flushMidNight();
 });
 

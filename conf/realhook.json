@@ -8,7 +8,8 @@
   "servers": [
     {
       "host": "192.168.4.2",
-      "port": "8080"
+      "port": "8080",
+      "path": "/realhook/set_checkpoint"
     }
   ],
   "redis" : {
@@ -34,7 +35,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=ZX_LLZKYH)"
+          "pcre": "(?:si_n=CB_GXBDG|si_n=CB_QTTHBDG|si_n=CB_RBDG|si_n=CB_RXDG|si_n=CB_XSBDG)"
         }
       ]
     },
@@ -43,7 +44,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:nv=RWK|nv=ZX_RWK)"
+          "pcre": "(?:si_n=CB_app)"
         }
       ]
     },
@@ -106,7 +107,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=IQ_)"
+          "pcre": "(?:si_n=2001|si_n=2002|si_n=2003|si_n=2004|si_n=2012|si_n=JiFen-QN)"
         }
       ]
     },
@@ -115,7 +116,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=CB_)"
+          "pcre": "(?!si_n=2001|si_n=2002|si_n=2003|si_n=2004|si_n=2012|si_n=JiFen-QN)"
         }
       ]
     },

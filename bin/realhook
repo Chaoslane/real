@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-
 const Log = require('log');
 const log = new Log('info');
+const fs = require('fs');
 const cluster = require('cluster');
 const program = require('commander');
-
-const rhconf = require('../conf/realhook.json');
 const utils = require('../lib/utils');
+
 
 // 读取命令行参数
 program
     .version('2.0.1')
+    .option('-c, --config <file>', '指定配置文件路径，默认为 conf/realhook.json', 'conf/realhook.json')
     .option('-n, --numcores <n>', '指定启动程序的vcore数量，默认4', 4)
     .option('-r, --real',  '实时数据分析模式，实时统计分析日志')
     .option('-t, --trans', '转发模式，TCP形式转发日志到flume')
@@ -22,18 +22,24 @@ if (!process.argv.slice(2).length) {
     process.exit(-1)
 }
 
+// 设置realhook.json为全局变量
+global.rhconf = require(`../${program.config}`);
 
 if (cluster.isMaster){
+    // watch realhook.json
+    fs.watch(program.config, { encoding: 'buffer' }, (eventType, filename) => {
+        if ('change' === eventType){
+            log.warning("Changed realhook.json, only cprules work, others must restart");
+            utils.sync2shotpot(
+                JSON.parse(fs.readFileSync(program.config)));
+        }
+    });
+
     // 设置延迟启动，在子进程启动之后，同步配置文件到shotpot
-    setTimeout(()=>{utils.sync2shotpot(rhconf)},3000);
+    setTimeout(()=>{utils.sync2shotpot(rhconf)},5000);
 
     // 载入socket.io模块
-    if (program.real) {
-        log.info(`Start real analysis module.`)
-        require('../app-ws');
-    }else if (program.trans){
-        log.info(`Start send tcp module, trans logs to flume.`)
-    }
+    if (program.real) require('../app-ws');
 
     // fork子进程
     for (let i = 0, n = program.numcores; i < n; i += 1){
@@ -44,11 +50,13 @@ if (cluster.isMaster){
     cluster.on('online', function(worker) {
         log.info('Worker(pid) ' + worker.process.pid + ' is online');
     });
+
     cluster.on('exit', function(worker, code, signal) {
         log.warning('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
         log.warning('ReStarting a new worker');
         cluster.fork();
     });
+
 }else {
     require('../app-worker');
 }
