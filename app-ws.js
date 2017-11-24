@@ -92,12 +92,13 @@ const flushStatus = function () {
         redisClient.pfcount(`${campaign.name}_iuv`, (err, result) => {
             if (result > 0) campaign.iuv = result;
         })
-        redisClient.pfcount(`${campaign.name}_suc`, (err, result) => {
+        redisClient.get(`${campaign.name}_suc`, (err, result) => {
             if (result > 0) campaign.suc_time = result;
         });
-        if (campaign.uv !== 0) {
-            campaign.suc_rate = campaign.suc_time / campaign.uv * 100;
-        }
+        redisClient.get(`${campaign.name}_fail`, (err, result) => {
+            const all = parseInt(campaign.suc_time) + parseInt(result);
+            campaign.suc_rate = campaign.suc_time / all * 100;
+        });
     });
 };
 
