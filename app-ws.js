@@ -93,10 +93,13 @@ const flushStatus = function () {
             if (result > 0) campaign.iuv = result;
         })
         redisClient.get(`${campaign.name}_suc`, (err, result) => {
-            if (result > 0) campaign.suc_time = result;
+            if (result > 0) campaign.suc_time = parseInt(result);
+        });
+        redisClient.get(`${campaign.name}_isuc`, (err, result) => {
+            if (result > 0) campaign.isuc_time = parseInt(result);
         });
         redisClient.get(`${campaign.name}_fail`, (err, result) => {
-            const all = parseInt(campaign.suc_time) + parseInt(result);
+            const all = campaign.suc_time + parseInt(result);
             campaign.suc_rate = campaign.suc_time / all * 100;
         });
     });
@@ -134,8 +137,8 @@ const flush5Minutes = function () {
         // IUV
         campaign.chain_iuv = operChain(`${campaign.name}_h_iuv`, campaign.iuv);
         campaign.speed_iuv = operSpeed(campaign.history_iuv, campaign.iuv);
-        campaign.iuv = 0;
         redisClient.del(`${campaign.name}_iuv`);
+        campaign.iuv = 0;
 
         // 累计成功量
         campaign.chain_suc = operChain(`${campaign.name}_h_suc;`, campaign.suc_time);
@@ -143,6 +146,8 @@ const flush5Minutes = function () {
 
         // 当前成功量
         operSpeed(campaign.history_isuc, campaign.isuc_time);
+        redisClient.del(`${campaign.name}_isuc`);
+        campaign.isuc_time = 0;
     });
 };
 
@@ -188,8 +193,8 @@ setInterval(flushStatus, 1000);
 schedule.scheduleJob('*/5 * * * *', function () {
     flush5Minutes();
 });
-schedule.scheduleJob('*/3 * * * *', function () {
-    checkHealth();
+schedule.scheduleJob('*/1 * * * *', function () {
+    setTimeout(checkHealth,5000);
 });
 schedule.scheduleJob('0 0 * * *', function () {
     flushMidNight();

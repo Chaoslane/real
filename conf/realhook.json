@@ -26,7 +26,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=YJDL|si_n=SY_DL|si_n=DL)"
+          "pcre": "(?:si_n=autoLogin|si_n=clickLogin)"
         }
       ]
     },

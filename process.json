@@ -1,0 +1,8 @@
+{
+  "apps" : [{
+    "name"        : "realhook",
+    "script"      : "/home/udbac/realhook/bin/realhook",
+    "args"        : "-r",
+    "watch"       : false
+  }]
+}
