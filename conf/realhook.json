@@ -1,9 +1,9 @@
 {
   "realhook": {
     "host": "192.168.4.153",
-    "stat_port": "18089",
+    "stat_port": "18079",
     "stat_path": "/cp_status",
-    "websocket_port": "18090"
+    "websocket_port": "18080"
   },
   "servers": [
     {

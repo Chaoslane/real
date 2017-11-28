@@ -19,46 +19,64 @@ const port = rhconf.realhook.websocket_port;
 // 初始化redis
 redisClient.flushdb();
 
+// TODO 从redis中取数，使用promise编写异步程序
+// const operChain = (key) => {
+//     return new Promise(function (resolve, reject) {
+//         redisClient.rpush(key, value);
+//         redisClient.llen(key, (err, result) => {
+//             if (result > 288)
+//                 redisClient.lpop(key);
+//         });
+//         redisClient.lindex(key, -1, (err, first) => {
+//             if (err) reject(err);
+//             if (first !== 0) {
+//                 redisClient.lindex(key, -2, (err, last) => {
+//                     resolve ((last / first).toFixed(2));
+//                 });
+//             }
+//         });
+//     });
+// };
+
+
 /**
  * 计算日环比，需要保留每个时间刻度的值，两天相同时刻的值做除法
- * 数组较长，需要从redis中存取
- * @param key redis key
+ * 数组较长，288个
+ * @param array 数组
  * @param value 当前时间刻度的值
  * @returns {number}
  */
-const operChain = (key, value) => {
-    redisClient.rpush(key, value);
-    redisClient.llen(key, (err, result) => {
-        if (result > 288)
-            redisClient.lpop(key);
-    });
-    redisClient.lindex(key, 0, (err, first) => {
-        if (first!=0){
-            redisClient.lindex(key, -1, (err, last) => {
-                return (last/first).toFixed(2);
-            });
-        }
-    });
-    return 0;
-};
+const operChain = (array, value) => {
+    array.push(value);
+    if (array.length > 288)
+        array.shift();
 
+    // 日环比=（今日此刻-昨日此刻）/昨日此刻值
+    const last = array[array.length - 1];
+    const first = array[array.length - 2];
+
+    let chain = 0;
+    if (last !== 0 && first !== 0){
+        chain = (last - first) / first;
+    }
+    return chain.toFixed(2)*100;
+};
 
 /**
  * 求速率，当前时间刻度减去上个时间刻度的值
- * @param array json串中的数组
+ * @param array 数组
  * @param value 当前时间刻度的值
  * @returns {number}
  */
 const operSpeed = (array, value) => {
-    array.push(value);
-    if (array.length > 20) array.shift();
-    // 当前计数减去上一个计数 即为速率
     const last = array[array.length - 1];
     const last1 = array[array.length - 2];
-    if (last && last != 0) {
-        return last - last1;
+    // 当前计数减去上一个计数 即为速率
+    let speed = 0;
+    if (last !==0 && last1 !== 0){
+        speed =  last - last1;
     }
-    return 0;
+    return speed;
 };
 
 
@@ -99,8 +117,10 @@ const flushStatus = function () {
             if (result > 0) campaign.isuc_time = parseInt(result);
         });
         redisClient.get(`${campaign.name}_fail`, (err, result) => {
-            const all = campaign.suc_time + parseInt(result);
-            campaign.suc_rate = campaign.suc_time / all * 100;
+            if (result > 0) {
+                const all = campaign.suc_time + parseInt(result);
+                campaign.suc_rate = campaign.suc_time / all * 100;
+            }
         });
     });
 };
@@ -113,11 +133,11 @@ const flush5Minutes = function () {
     // 每5分钟更新一次数组，shift+push
     // 每个数组保存288个元素 用于计算日环比
     // UV
-    status.summary.chain_uv = operChain("summary_h_uv", status.summary.uv);
+    status.summary.chain_uv = operChain(status.summary.history_uv, status.summary.uv);
     status.summary.speed_uv = operSpeed(status.summary.history_uv, status.summary.uv);
 
     // IUV
-    status.summary.chain_iuv = operChain("summary_h_iuv", status.summary.iuv);
+    status.summary.chain_iuv = operChain(status.summary.history_iuv, status.summary.iuv);
     status.summary.speed_iuv = operSpeed(status.summary.history_iuv, status.summary.iuv);
     status.summary.iuv = 0;
     redisClient.del(`summary_iuv`);
@@ -131,21 +151,21 @@ const flush5Minutes = function () {
     // 遍历campaigns
     status.campaigns.forEach((campaign) => {
         // 累计UV
-        campaign.chain_iuv = operChain(`${campaign.name}_h_uv`, campaign.uv);
+        campaign.chain_uv = operChain(campaign.history_uv, campaign.uv);
         campaign.speed_uv = operSpeed(campaign.history_uv, campaign.uv);
 
         // IUV
-        campaign.chain_iuv = operChain(`${campaign.name}_h_iuv`, campaign.iuv);
+        campaign.chain_iuv = operChain(campaign.history_iuv, campaign.iuv);
         campaign.speed_iuv = operSpeed(campaign.history_iuv, campaign.iuv);
         redisClient.del(`${campaign.name}_iuv`);
         campaign.iuv = 0;
 
         // 累计成功量
-        campaign.chain_suc = operChain(`${campaign.name}_h_suc;`, campaign.suc_time);
-        campaign.speed_suc = operSpeed(campaign.history_suc, campaign.suc_time)
+        campaign.chain_suc = operChain(campaign.history_suc, campaign.suc_time);
+        campaign.speed_suc = operSpeed(campaign.history_suc, campaign.suc_time);
 
         // 当前成功量
-        operSpeed(campaign.history_isuc, campaign.isuc_time);
+        operChain(campaign.history_isuc, campaign.isuc_time);
         redisClient.del(`${campaign.name}_isuc`);
         campaign.isuc_time = 0;
     });
@@ -189,7 +209,7 @@ const checkHealth = function () {
 
 
 // 定时任务
-setInterval(flushStatus, 1000);
+setInterval(flushStatus, 5000);
 schedule.scheduleJob('*/5 * * * *', function () {
     flush5Minutes();
 });
