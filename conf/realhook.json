@@ -26,7 +26,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=autoLogin|si_n=clickLogin)"
+          "pcre": "(?:si_n=(auto|click)Login)"
         }
       ]
     },
@@ -35,7 +35,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=CB_GXBDG|si_n=CB_QTTHBDG|si_n=CB_RBDG|si_n=CB_RXDG|si_n=CB_XSBDG)"
+          "pcre": "(?:si_n=CB_(GXBDG|QTTHBDG|RBDG|RXDG|XSBDG))"
         }
       ]
     },
@@ -107,7 +107,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?:si_n=2001|si_n=2002|si_n=2003|si_n=2004|si_n=2012|si_n=JiFen-QN)"
+          "pcre": "(?:si_n=(2001|2002|2003|2004|2012|JiFen-QN))"
         }
       ]
     },
@@ -116,7 +116,7 @@
       "rule": [
         {
           "check": "$cs_uri_query",
-          "pcre": "(?!si_n=2001|si_n=2002|si_n=2003|si_n=2004|si_n=2012|si_n=JiFen-QN)"
+          "pcre": "(?:si_n=(?!(2001|2002|2003|2004|2012|JiFen-QN|autoLogin|clickLogin|YJDL|yueLogin|SY_DL_FW|SY_DL_DX)))"
         }
       ]
     },

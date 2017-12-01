@@ -1,0 +1,96 @@
+body,html,ul,p,h1,h2,h3,h4,h5,dl,dd,form,input,textarea,select,li{
+    padding: 0;
+    margin: 0;
+}
+html,body{
+	height: 100%;
+	width: 100%;
+	font-family: Helvetica, Arial, sans-serif;
+}
+img { border:none; }
+input,
+select{outline:none;}
+body{
+	min-width: 1331px;
+}
+
+.clearfix {
+  zoom: 1; 
+}
+ 
+.clearfix:after{
+	content: " ";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden; 
+}
+
+.fl{
+	float: left;
+}
+
+.fr{
+	float: right;
+}
+
+.vis{visibility: hidden;}
+
+li{
+    list-style: none;
+}
+
+a{
+    text-decoration: none;
+    color: #2b2b2b;
+}
+a:link, a:visited,a:hover, a:active{
+    text-decoration: none;
+}
+img{
+	vertical-align: middle;
+}
+
+
+/** ---------------------------------------------------------------------------------------濠婃艾濮╅弶锟� **/
+::-webkit-scrollbar {
+	width: 4px;
+    height: 8px;
+}
+::-webkit-scrollbar-button:vertical {
+	display: none;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+	background-color: #b4c1cc;
+}
+::-webkit-scrollbar-thumb {
+	border-radius: 0;
+    background-color: rgba(78, 172, 202, .7);
+}
+::-webkit-scrollbar-thumb:vertical:hover {
+	background-color: rgba(0, 0, 0, .35);
+}
+::-webkit-scrollbar-thumb:vertical:active {
+	background-color: rgba(0, 0, 0, .38);
+}
+
+.day-time {
+    width: 180px;
+    height: 25px;
+    padding-left: 22px;
+    border: none;
+    color: #4a4949;
+    border-radius: 5px;
+    background-color: #d2d2d2;
+}
+/*echarts鏃犳暟鎹殑鏃跺�欙紝鏄剧ず鍐呭鏍峰紡*/
+.no_data{
+	font-size: 17px;
+    color: #fff;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    line-height: 347px;
+    text-align: center;
+}

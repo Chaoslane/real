@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	
+		<title>累积、活跃用户情况</title>
+		<link rel="stylesheet" type="text/css" href="../../css/common/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/style.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/header.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/userScale.css"/>
+		<script src="../../js/common/jquery-1.11.1.min.js"></script>
+		<script src="../../js/common/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/common/socket.io.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/common/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/common/udbac.js" type="text/javascript" charset="utf-8"></script>
+		<!-- 日期选择控件 -->
+		<script type="text/javascript" src="../../js/my97DatePicker/WdatePicker.js"></script>
+	</head>
+	<body>
+		<div id="wrapper">
+			<header id="header" class='header_common'></header>
+			<div id="currentLocation"></div>
+			<div id="content" class="clearfix">			
+				<div class="content_top clearfix">
+					<ul class="content_top_left pull-left">
+						<li class="titleComClass clearfix">
+							<span class="tipColor pull-left" style="background:#50fffe;"></span>
+							<h4 class="pull-left" id="index_name_content">累计用户数趋势图</h4>
+						</li>	
+						<li class="index_trends">
+							<div id="index_trends"></div>
+						</li>			
+					</ul>
+					<div class="content_top_right pull-left">
+						<ul class="clearfix" id="index_list">
+							<li class="content_top_right_list pull-left margin-bottom index_part active">
+								<div class="pull-right index_border">
+									<div class="titleComClassBox">
+										<div class="titleComClass clearfix">					
+											<span class="tipColor pull-left" style="background:#0edd97;"></span>
+											<h4 class="pull-left index_name" code="001">累计用户数</h4>
+										</div>	
+									</div>
+									<div class="common_number_bg">
+										<div class="numberComClass" id="cumulative_user"></div>
+										<div class="common_number_percent">环比：<span id='sumuser_ratio'></span><span class=" upSpan glyphicon glyphicon-arrow-up"></span></div>
+									</div>
+									<div class="index_bg"></div>	
+									<img class="index_img" src="../../img/brokenLine.png" alt=""/>		
+								</div>						
+							</li>
+							<li class="content_top_right_list pull-left margin-bottom index_part">
+								<div class="pull-right index_border">
+									<div class="titleComClassBox">	
+										<div class="titleComClass clearfix">					
+											<span class="tipColor pull-left" style="background:#0edd97;"></span>
+											<h4 class="pull-left index_name" code="002">活跃用户数</h4>
+									</div>	
+									<div class="common_number_bg">
+										<div class="numberComClass" id="active_user"></div>
+										<div class="common_number_percent">环比：<span id='active_ratio'></span><span class=" upSpan glyphicon glyphicon-arrow-up"></span></div>
+									</div>
+									<div class="index_bg"></div>	
+									<img class="index_img" src="../../img/brokenLine.png" alt=""/>	
+								</div>							
+							</li>
+							<li class="content_top_right_list pull-left margin-bottom index_part">	
+								<div class="pull-right index_border">
+									<div class="titleComClassBox">
+										<div class="titleComClass clearfix">					
+											<span class="tipColor pull-left" style="background:#1e59e1;"></span>
+											<h4 class="pull-left index_name" code="003">激活用户数</h4>
+										</div>
+									</div>	
+									<div class="common_number_bg">
+										<div class="numberComClass" id="activate_user"></div>
+										<div class="common_number_percent">环比：<span id="activate_ratio"></span><span class=" upSpan glyphicon glyphicon-arrow-up"></span></div>
+									</div>	
+									<div class="index_bg"></div>	
+									<img class="index_img" src="../../img/brokenLine.png" alt=""/>
+								</div>							
+							</li>
+							<li class="content_top_right_list pull-left margin-bottom index_part">
+								<div class="pull-right index_border">
+									<div class="titleComClassBox">	
+										<div class="titleComClass clearfix">					
+											<span class="tipColor pull-left" style="background:#1e59e1;"></span>
+											<h4 class="pull-left index_name" code="004">新增用户数</h4>
+										</div>	
+									</div>
+									<div class="common_number_bg">
+										<div class="numberComClass" id="add_user"></div>
+										<div class="common_number_percent">环比：<span id='add_ratio'></span><span class=" upSpan glyphicon glyphicon-arrow-up"></span></div>
+									</div>
+									<div class="index_bg"></div>	
+									<img class="index_img" src="../../img/brokenLine.png" alt=""/>
+								</div>								
+							</li>
+							<li class="content_top_right_list pull-left index_part">
+								<div class="pull-right index_border">	
+									<div class="titleComClassBox">
+										<div class="titleComClass clearfix">					
+											<span class="tipColor pull-left" style="background:#0edd97;"></span>
+											<h4 class="pull-left index_name" code="005">APP平均使用时长中位数</h4>
+										</div>
+									</div>	
+									<div class="common_number_bg">
+										<div class="numberComClass" id="average_time"></div>
+										<div class="common_number_percent">环比：<span id="app_ratio"></span><span class=" upSpan glyphicon glyphicon-arrow-up"></span></div>
+									</div>
+									<div class="index_bg"></div>	
+									<img class="index_img" src="../../img/brokenLine.png" alt=""/>	
+								</div>							
+							</li>
+							<li class="content_top_right_list pull-left index_part">
+								<div class="pull-right index_border">
+									<div class="titleComClassBox">	
+										<div class="titleComClass clearfix">					
+											<span class="tipColor pull-left" style="background:#0edd97;"></span>
+											<h4 class="pull-left index_name" code="006">登录成功率</h4>
+										</div>	
+									</div>
+									<div class="common_number_bg clearfix">
+										<div class="common_dashboard pull-left common_dashboard_dif" id="login_success"></div>
+										<div class="common_dashboard_precent pull-left" style="">
+											<div class="common_dashboard_number" id='success_id'></div>
+											<div class="common_number_percent">环比：<span id='success_ratio'></span><span class=" upSpan glyphicon glyphicon-arrow-up"></span></div>
+										</div>
+									</div>
+									<div class="index_bg"></div>	
+									<img class="index_img" src="../../img/brokenLine.png" alt=""/>
+								</div>							
+							</li>
+						</ul>
+					</div>
+				</div>	
+				<ul class="content_bottom clearfix">
+					<li class="content_bottom_left pull-left">
+						<div class="titleComClassBox">	
+							<div class="titleComClass clearfix">					
+								<span class="tipColor pull-left" style="background:#4ffffd;"></span>
+								<h4 class="pull-left">新老用户</h4>
+							</div>	
+						</div>
+						<div class="content_bottom_bg">	
+							<div id="new_old_user"></div>
+							<div id="new_old_img"><img src="../../img/users.png"/></div>				
+						</div>
+					</li>
+					<li class="content_bottom_center pull-left clearfix">
+						<div class="pull-right">
+							<div class="titleComClassBox">	
+								<div class="titleComClass clearfix">					
+									<span class="tipColor pull-left" style="background:#4ffffd;"></span>
+									<h4 class="pull-left" id="appName" code="008">分APP版本访客数</h4><!-- 名称不可随意修改 -->
+								</div>	
+							</div>
+							<div class="content_bottom_bg">	
+								<div id="edition_use_visitor"></div>						
+							</div>
+						</div>
+					</li>
+					<li class="content_bottom_right pull-left clearfix">
+						<div class="pull-right">
+							<div class="titleComClassBox">	
+								<div class="titleComClass clearfix">					
+									<span class="tipColor pull-left" style="background:#4ffffd;"></span>
+									<h4 class="pull-left" id="hoursName" code="009">分小时访客数</h4><!-- 名称不可随意修改 -->
+								</div>	
+							</div>
+							<div class="content_bottom_bg">	
+								<div id="hourse_active_user"></div>							
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		
+		<script src="../../js/common/header.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/userScale/userScaleCommon.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/userScale/activeUsers.js" type="text/javascript" charset="utf-8"></script>
+	</body>
+</html>

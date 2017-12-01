@@ -53,14 +53,15 @@ const operChain = (array, value) => {
 
     // 日环比=（今日此刻-昨日此刻）/昨日此刻值
     const last = array[array.length - 1];
-    const first = array[array.length - 2];
+    const first = array[0];
 
     let chain = 0;
     if (last !== 0 && first !== 0){
         chain = (last - first) / first;
     }
-    return chain.toFixed(2)*100;
+    return parseFloat((chain*100).toFixed(2));
 };
+
 
 /**
  * 求速率，当前时间刻度减去上个时间刻度的值
@@ -76,7 +77,7 @@ const operSpeed = (array, value) => {
     if (last !==0 && last1 !== 0){
         speed =  last - last1;
     }
-    return speed;
+    return parseInt(speed);
 };
 
 
@@ -85,7 +86,7 @@ const operSpeed = (array, value) => {
  */
 const flushStatus = function () {
     redisClient.get('summary_pv', (err, result) => {
-        if (result > 0) status.summary.pv = result;
+        // if (result > 0) status.summary.pv = result;
     });
     redisClient.pfcount('summary_uv', (err, result) => {
         if (result > 0) status.summary.uv = result;
@@ -107,19 +108,25 @@ const flushStatus = function () {
         redisClient.pfcount(`${campaign.name}_uv`, (err, result) => {
             if (result > 0) campaign.uv = result;
         });
+
         redisClient.pfcount(`${campaign.name}_iuv`, (err, result) => {
             if (result > 0) campaign.iuv = result;
         })
+
         redisClient.get(`${campaign.name}_suc`, (err, result) => {
-            if (result > 0) campaign.suc_time = parseInt(result);
+            if (result > 0) {
+                campaign.suc_time = parseInt(result);
+            }
         });
         redisClient.get(`${campaign.name}_isuc`, (err, result) => {
-            if (result > 0) campaign.isuc_time = parseInt(result);
-        });
-        redisClient.get(`${campaign.name}_fail`, (err, result) => {
             if (result > 0) {
-                const all = campaign.suc_time + parseInt(result);
-                campaign.suc_rate = campaign.suc_time / all * 100;
+                const isuc_time = parseInt(result);
+                redisClient.get(`${campaign.name}_ifail`, (err, result) => {
+                    if (result > 0) {
+                        const all = isuc_time + parseInt(result);
+                        campaign.isuc_rate = parseFloat((isuc_time / all * 100).toFixed(2));
+                    }
+                });
             }
         });
     });
@@ -165,9 +172,11 @@ const flush5Minutes = function () {
         campaign.speed_suc = operSpeed(campaign.history_suc, campaign.suc_time);
 
         // 当前成功量
-        operChain(campaign.history_isuc, campaign.isuc_time);
+        campaign.history_isuc.push(campaign.isuc_rate);
+        if(campaign.history_isuc.length > 21) {
+            campaign.history_isuc.shift();
+        }
         redisClient.del(`${campaign.name}_isuc`);
-        campaign.isuc_time = 0;
     });
 };
 

@@ -1,0 +1,131 @@
+#wrapper{
+	padding: 0 0.5% 0 0.5%;
+	width:100%;
+	height:100%;
+	background: url(../img/star.jpg) no-repeat;
+	background-size: 100% 100%;
+}
+
+#content {
+	height: calc( 100% - 92px );
+    width: 100%;
+    color: #fff;
+	overflow: auto;
+}
+
+/* 热力图title */
+.title-top{
+    height: 33px;
+    background: rgba(81,255,255,0.15);
+    font-size: 20px;
+    color: #51FFFF;
+    line-height: 33px;
+    padding-left: 20px;
+	margin-bottom: 10px;
+}
+
+
+select{
+	width: 150px;
+    height: 25px;
+    background: #e6e6e6;
+    color: #888;
+    border-radius: 2px;
+    border: none;
+    overflow: hidden;
+}
+
+select.fl {
+    margin-left: 25%;
+    margin-left: calc( ((100% - 499px) /2) - 165px );
+    margin-left: -moz-calc( ((100% - 499px) /2) - 165px );
+    margin-left: -webkit-calc( ((100% - 499px) /2) - 165px );
+}
+
+
+/*热力图 */
+#graphic {
+	width: 100%;
+    height: auto;
+    background: url('../img/sy.jpg') no-repeat top center;
+}
+
+#graphic>div {
+	width: 449px;
+    height: 2767px;
+    margin:0 auto;
+}
+
+#data-num{
+	width: 449px;
+	margin:0 auto;
+	position: relative;
+}
+
+#data-num>div{
+	font-size: 19px;
+	background-color: rgba(0, 0, 0, 0.2);
+	color: #F7F7F7;
+	position: absolute;
+	z-index: 1;
+}
+
+#data-num0{
+	left: 95px;
+    top: 307px;
+}
+
+#data-num1{
+	left: 158px;
+    top: 367px;
+}
+
+#data-num2{
+    left: 220px;
+    top: 425px;
+
+}
+
+#data-num3{
+    left: 280px;
+    top: 367px;
+}
+
+#data-num4{
+    left: 340px;
+    top: 307px;
+}
+
+/*按钮点击分析页面css*/
+.topL,
+.topR,
+.botL,
+.botR{
+	width:49%;
+}
+
+.top-title{
+	height:28px;
+	line-height: 30px;
+	background:#000711
+}
+
+.top-title>span:before{
+	content:" ";
+    width: 6px;
+    height: 65%;
+    vertical-align:middle;
+    display:inline-block;
+    background: #51fffe;
+    margin-right:12px;
+}
+
+.conTL,
+.conTR{
+	height:380px;
+	background: url(../img/chartBg.png) !important;
+}
+
+.con-bottom{
+	margin-top:20px;
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	
+		<title>用户属性分析</title>
+		<link rel="stylesheet" type="text/css" href="../../css/common/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/style.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/header.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/userScale.css"/>
+		<script src="../../js/common/jquery-1.11.1.min.js"></script>
+		<script src="../../js/common/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/common/socket.io.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/common/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/common/udbac.js" type="text/javascript" charset="utf-8"></script>
+		<!-- 日期选择控件 -->
+		<script type="text/javascript" src="../../js/my97DatePicker/WdatePicker.js"></script>
+	</head>
+	<body>
+		<div id="wrapper">
+			<header id="header" class='header_common'></header>
+			<div id="currentLocation"></div>
+			<div id="content" class="clearfix">								
+				<ul class="clearfix attribute_content">
+					<li class="pull-left small_width">
+						<div class="pull-left spacing_width">
+							<div class="titleComClassBox">
+								<div class="titleComClass clearfix">					
+									<span class="tipColor pull-left" style="background:#0fdd95;"></span>
+									<h4 class="pull-left">用户归属</h4>
+								</div>
+							</div>
+							<div class="common_number_bg common_number_bg_top text-center" id="common_number_bg_top">
+								<div class="clearfix common_number_bg_top">
+									<span class="pull-left common_number_bg_top_name" id="currentCity">郑州市用户量：</span>
+									<div style="overflow-x:auto" class="pull-left">
+										<div class="numberComClass" id="user_ascription"></div>
+									</div>
+								</div>
+								<div class="echarts_map_box" style="position:relative;">
+									<span title='省会郑州市' class='glyphicon glyphicon-star' id='provincial_star' style='height:10px;width:10px;font-size:2px;color:red;position:absolute;top:37%;left:50%;z-index:100;' ></span>
+									<div id="echarts_map"></div>
+								</div>
+							</div>
+							<div class="titleComClassBox">
+								<div class="titleComClass clearfix">					
+									<span class="tipColor pull-left" style="background:#51fffe;"></span>
+									<h4 class="pull-left">用户操作系统版本</h4>
+								</div>
+							</div>
+							<div class="common_number_bg common_number_bg_bottom clearfix">	
+								<div id="user_operation" class="pull-left"></div>							
+								<div class="user_operation pull-left" id="user_name">
+									<p id="userVolume" class="clearfix user_operation_top"><span class="pull-left text-right"><span class="user_name">v5.0</span>用&nbsp;&nbsp;户&nbsp;&nbsp;量：</span><span class="pull-left text-left" id="user_volume"></span></p>
+									<p id="userShare" class="clearfix"><span class="pull-left text-right"><span class="user_name">v5.0</span>用户占比：</span><span class="pull-left text-left" id="user_share"></span></p>
+									<ul id="userAllId" class="clearfix edition_name_list">
+										<li class="pull-left"><i style="background:#0fdc97;"></i><span id="iName1"></span></li>
+										<li class="pull-left"><i style="background:#ff6400;"></i><span id="iName2"></span></li>
+										<li class="pull-left"><i style="background:#ef0100;"></i><span id="iName3"></span></li>
+										<li class="pull-left"><i style="background:#4ffffc;"></i><span id="iName4"></span></li>
+										<li class="pull-left"><i style="background:#1f5ae2;"></i><span id="iName5"></span></li>
+										<li class="pull-left"><i style="background:#008788;"></i><span id="iName6"></span></li>
+									</ul>
+								</div>								
+							</div>							
+						</div>
+					</li>
+					<li class="pull-left big_width" id="big_width">
+						<div class="user_equipment margin_bottom">
+							<div class="titleComClassBox">
+								<div class="titleComClass clearfix">					
+									<span class="tipColor pull-left" style="background:#51fffe;"></span>
+									<h4 class="pull-left">用户设备型号</h4>
+								</div>
+							</div>
+							<div class="common_number_bg">
+								<div id="equipment_model"></div>
+							</div>
+						</div>
+						<div class="user_equipment">
+							<div class="titleComClassBox">
+								<div class="titleComClass clearfix">					
+									<span class="tipColor pull-left" style="background:#51fffe;"></span>
+									<h4 class="pull-left">用户设备分辨率</h4>
+								</div>
+							</div>
+							<div class="common_number_bg">
+								<div id="equipment_rate"></div>
+							</div>
+						</div>
+					</li>
+				</ul>								
+			</div>
+		</div>
+		
+		
+		<script src="../../js/common/header.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/userScale/userScaleCommon.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/userScale/attributeAnalysis.js" type="text/javascript" charset="utf-8"></script>
+	</body>
+</html>
