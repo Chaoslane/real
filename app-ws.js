@@ -177,6 +177,7 @@ const flush5Minutes = function () {
             campaign.history_isuc.shift();
         }
         redisClient.del(`${campaign.name}_isuc`);
+        redisClient.del(`${campaign.name}_ifail`);
     });
 };
 
@@ -210,11 +211,11 @@ const flushMidNight = function () {
  */
 const checkHealth = function () {
     if (status.summary.uv ===
-        status.summary.history_uv[status.summary.history_uv.length-1]){
+        status.summary.history_uv[status.summary.history_uv.length - 1]) {
         log.warning("Checked shotpot connection unhealthy, request shotpot again.")
         utils.sync2shotpot(rhconf);
     }
-}
+};
 
 
 // 定时任务

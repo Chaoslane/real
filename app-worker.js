@@ -7,7 +7,6 @@ const Koa = require('koa');
 const app = new Koa();
 const server = require('http').Server(app.callback());
 
-
 // middleware
 const koaBody = require('koa-body');
 const Router = require('koa-router');
@@ -38,6 +37,7 @@ if (properties.find(str => str.indexOf('-r') > -1)){
 
 // response
 router.post(rhconf.realhook.stat_path, async ctx => {
+    ctx.status = 200;
     ctx.body = "OK";
 });
 
