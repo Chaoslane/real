@@ -1,0 +1,134 @@
+body{
+	background: #091b25;
+	min-width: 1200px;
+}
+#header div{
+	box-sizing: border-box;
+    width: 50%;
+    height: 50px;
+    line-height: 50px;
+    color: #fff;
+    border-bottom: 2px solid #006069;
+}
+#header div:nth-child(1){
+	padding: 0 0 0 2rem;
+}
+#header div:nth-child(2){
+	padding: 0 2rem 0 0;
+	text-align: right;
+}
+.spanClassColor{
+	display: inline-block;
+	width: 4px;
+	height: 100%;
+	background: #0f9;
+}
+.dataList div .spanClassColor{
+	height: 50%;
+}
+.numSpanColor{
+	color: #15efee;
+	font-size: 20px;
+}
+.spanWidth{
+	float: left;
+	width: calc(100% / 3);
+	height: 40px;
+	line-height: 40px;
+	text-align: center;
+	font-size:18px;
+	color: silver;
+}
+.dataRight{
+	width: 70%;
+	height: 100%;
+}
+.dataLeft{
+	width: 30%;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+    padding: 2% 0 0 2%;
+    box-sizing: border-box;
+}
+.dataLeft li:nth-child(2n+1){
+	color: silver;
+	height: 8%;
+}
+.dataLeft li:nth-child(2n){
+	text-align: center;
+	color: #0f9;
+	height: 17%;
+	font-size: 26px;
+}
+.dataList{
+	float: left;
+	box-sizing: border-box;
+	width: 50%;
+	height: 50%;
+	border-right:1px solid silver;
+	border-bottom:1px solid silver;
+}
+#datalist_wrap{
+	width: 100%;
+	height: calc(100% - 90px);
+	box-sizing: border-box;
+	border: 1px solid silver;
+	border-bottom: 0;
+	border-right: 0;
+}
+.dataList div:nth-child(1){
+	height: 8%;
+	padding: 0 0 0 20px;
+	width: 100%;
+	box-sizing: border-box;
+	border-bottom:1px solid #6d6d6d;
+}
+.dataList div:nth-child(1) span{
+	display: inline-block;
+	font-size: 18px;
+	color: silver;
+	vertical-align: middle;
+}
+.dataList .dataList_div1{
+	height:92%;
+	width: 100%;
+}
+.dataRight li{
+	/*height: calc( 50% - 1px );*/
+	height: 50%;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.tipColor{
+	-webkit-animation-name: breath;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-timing-function: ease-in-out;
+	-webkit-animation-iteration-count: infinite;
+	-moz-animation-name: breath;
+	-moz-animation-duration: 2s;
+	-moz-animation-timing-function: ease-in-out;
+	-moz-animation-iteration-count: infinite;
+	-o-animation-name: breath;
+	-o-animation-duration: 2s;
+	-o-animation-timing-function: ease-in-out;
+	-o-animation-iteration-count: infinite;
+}
+@-webkit-keyframes breath {
+	from {opacity: 0.1;}50% {opacity: 1;}to {opacity: 0.1;}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

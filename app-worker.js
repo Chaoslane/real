@@ -1,59 +1,56 @@
-#!/usr/bin/env node
-
+#!/bin/node
+global.rhConf = require(`./conf/${process.env.REALHOOK_ENV}/realhook.json`);
+const utils = require('./lib/utils');
 const Log = require('log');
 const log = new Log('info');
 
+// koa
 const Koa = require('koa');
 const app = new Koa();
-const server = require('http').Server(app.callback());
-
 // middleware
 const koaBody = require('koa-body');
 const Router = require('koa-router');
 const router = new Router();
 const path = require('path');
 const static = require('koa-static');
-const staticPath = './static';
+const reqHandler = require(`./lib/${process.env.REALHOOK_ENV}/request-handler`);
 
+
+const appHost = rhConf.realhook.host;
+const appPort = rhConf.realhook.stat_port;
+const appPath = rhConf.realhook.stat_path;
+
+
+// middlewares
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
+router.post(appPath, midReqestHandler());
 
-app.use(static(
-    path.join(__dirname, staticPath)
-));
 
-const properties = process.argv;
+// listeners
+app.listen(appPort, function () {
+    log.info('Start server succeed, listen on: ' + appHost + ":" + appPort);
+    utils.sync2shotpot(rhConf);
+});
+app.on('error', err => {
+    log.error('Worker error: ' + err.message);
+});
 
-if (properties.find(str => str.indexOf('-t') > -1)){
-    const sendtcp = require('./lib/mid_sendtcp');
-    router.post(rhconf.realhook.stat_path, sendtcp());
+
+// custom request handler wapper
+function midReqestHandler() {
+    return async (ctx, next) => {
+        try {
+            reqHandler(ctx);
+            await next();
+            ctx.status = 200;
+            ctx.body = 'OK';
+        } catch (err) {
+            ctx.status = err.status || 500;
+            ctx.body = err.message;
+            ctx.app.emit('error', err, ctx);
+        }
+    }
 }
 
-if (properties.find(str => str.indexOf('-r') > -1)){
-    const realstatus = require('./lib/mid_realstatus');
-    router.post(rhconf.realhook.stat_path, realstatus.keepReal());
-}
-
-// response
-router.post(rhconf.realhook.stat_path, async ctx => {
-    ctx.status = 200;
-    ctx.body = "OK";
-});
-
-// error handler
-app.on('error', function(err,ctx){
-    log.error(err.message);
-});
-
-
-server.listen(rhconf.realhook.stat_port);
-server.on('error', (err)=> {
-    log.error(`Start worker failed`);
-    throw err;
-});
-server.on('listening', ()=>{
-    log.info(`Worker is listen on ${rhconf.realhook.stat_port}`)
-});
-
-module.exports = server;

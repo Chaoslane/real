@@ -1,0 +1,113 @@
+{
+  "realhook": {
+    "host": "192.168.4.153",
+    "stat_port": "18089",
+    "stat_path": "/cp_status",
+    "websocket_port": "18090"
+  },
+  "servers": [
+    {
+      "host": "192.168.4.2",
+      "port": "8080",
+      "path": "/realhook/set_checkpoint"
+    }
+  ],
+  "redis" : {
+    "host" : "192.168.4.2",
+    "port" : "6379"
+  },
+  "cprules": [
+    {
+      "name": "rwk", "alias" : "任我看",
+      "rule": [
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:videoFlow)"
+        },
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:event=RWKJH)"
+        },
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:si_n=(AQY3GB|AQY30GB|YKSP3GB|YKSP30GB|PPTV3GB|PPTV30GB|MGSP3GB|MGSP30GB|MGZB3GB|MGZB30GB))"
+        }
+      ],
+      "step":[
+        {"alias_uv":"累计访问量",   "alias_con":"整体转化率", "code":"url"},
+        {"alias_uv":"立即订购访客", "alias_con":"立即订购",   "code":"20"},
+        {"alias_uv":"确认订购访客", "alias_con":"确认订购",   "code":"21"},
+        {"alias_uv":"订购成功访客", "alias_con":"订购成功",   "code":"99"}
+      ]
+    },
+    {
+      "name": "NSDWMDsd", "alias" : "你升档我买",
+      "rule": [
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:smallKingCard/provincepage.do)"
+        },
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:event=NSDWMDsd)"
+        },
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:si_n=(10Y500MYC20sd|10Y1GMYC20sd|10FKS20sd|10Y500MYC30sd|10Y1GMYC30sd|10FKS30sd|20YDS30sd|20FKS30sd|20YDS50sd|20FKS50sd|30YDS50sd|30FKS50sd))"
+        }
+      ],
+      "step":[
+        {"alias_uv":"累计访问量",   "alias_con":"整体转化率", "code":"url"},
+        {"alias_uv":"免费升档访客", "alias_con":"免费升档",   "code":"20"},
+        {"alias_uv":"确认升档访客", "alias_con":"确认升档",   "code":"21"},
+        {"alias_uv":"订购成功访客", "alias_con":"订购成功",   "code":"99"}
+      ]
+    },
+    {
+      "name": "qyb15", "alias" : "权益包15",
+      "rule": [
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:initPage.do\\?dhid=15)"
+        },
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:event=15SPQY)"
+        },
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:si_n=(15AQY|15YKRWK|15YK|15AQYRWK|15YK|15MG))"
+        }
+      ],
+      "step":[
+        {"alias_uv":"累计访问量",   "alias_con":"整体转化率", "code":"url"},
+        {"alias_uv":"立即办理访客", "alias_con":"立即办理",   "code":"30"},
+        {"alias_uv":"确认升档访客", "alias_con":"确认订购",   "code":"31"},
+        {"alias_uv":"订购成功访客", "alias_con":"订购成功",   "code":"99"}
+      ]
+    },
+    {
+      "name": "qyb20", "alias" : "权益包20",
+      "rule": [
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:initPage.do\\?dhid=20)"
+        },
+        {
+          "check":"$cs_uri_query",
+          "pcre" :"(?:event=20SPQY)"
+        },
+        {
+          "check": "$cs_uri_query",
+          "pcre": "(?:si_n=(20YKRWK|20YK|20AQYRWK|20YK|20MG|20AQY))"
+        }
+      ],
+      "step":[
+        {"alias_uv":"累计访问量",   "alias_con":"整体转化率", "code":"url"},
+        {"alias_uv":"立即办理访客", "alias_con":"立即办理",   "code":"30"},
+        {"alias_uv":"确认升档访客", "alias_con":"确认订购",   "code":"31"},
+        {"alias_uv":"订购成功访客", "alias_con":"订购成功",   "code":"99"}
+      ]
+    }
+  ]
+}
