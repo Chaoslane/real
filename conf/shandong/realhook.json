@@ -41,7 +41,7 @@
       ]
     },
     {
-      "name": "NSDWMDsd", "alias" : "你升档我买",
+      "name": "NSDWMDsd", "alias" : "你升档我买单",
       "rule": [
         {
           "check":"$cs_uri_query",
@@ -82,7 +82,7 @@
       "step":[
         {"alias_uv":"累计访问量",   "alias_con":"整体转化率", "code":"url"},
         {"alias_uv":"立即办理访客", "alias_con":"立即办理",   "code":"30"},
-        {"alias_uv":"确认升档访客", "alias_con":"确认订购",   "code":"31"},
+        {"alias_uv":"确认办理访客", "alias_con":"确认办理",   "code":"31"},
         {"alias_uv":"订购成功访客", "alias_con":"订购成功",   "code":"99"}
       ]
     },
@@ -105,7 +105,7 @@
       "step":[
         {"alias_uv":"累计访问量",   "alias_con":"整体转化率", "code":"url"},
         {"alias_uv":"立即办理访客", "alias_con":"立即办理",   "code":"30"},
-        {"alias_uv":"确认升档访客", "alias_con":"确认订购",   "code":"31"},
+        {"alias_uv":"确认办理访客", "alias_con":"确认订购",   "code":"31"},
         {"alias_uv":"订购成功访客", "alias_con":"订购成功",   "code":"99"}
       ]
     }

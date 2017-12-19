@@ -1,3 +1,4 @@
+/*2017-12-13 15:00 版本*/
 $(function(){
 	cssFun ('.dataList div:nth-child(1)');
 	cssFun ('.dataLeft li:nth-child(2n)');
@@ -11,16 +12,16 @@ $(function(){
 	//socketIo.emit('getstatus','');
 	function emitFun(){
 		socketIo.emit('getstatus','');
-		
 		setTimeout(function(){
 			emitFun();
 		},5000);
 	};
 	
 	socketIo.on('status',function(data){//监听服务器返回信息
-		console.log(data);
+		//console.log(data);
 
-		var colorS = ['#0fcfc4','#2fa1f7','#497af3','#4955bb'];
+		/*var colorS = ['#0fcfc4','#2fa1f7','#497af3','#4955bb'];*/
+		var colorS = ['#16B781','#1C62D3','#13CACE','#7431F4'];
 		
 		$('#dataPv').text(formatTmpl(data.summary.pv));
 		$('#dataUv').text(formatTmpl(data.summary.uv));
@@ -37,7 +38,7 @@ $(function(){
 			var dataS_f			=	[];
 			var dataStep		=	data.campaigns[i].step;
 			var liS				=	'<li class="dataList">'
-										+'<div><span id="" class="spanClassColor tipColor"></span>&emsp;<span id="">'+data.campaigns[i].alias+'</span></div>'
+										+'<div><span id="" class="spanClassColor tipColor"></span>&emsp;<span id="" style="vertical-align:bottom;" class="textLine textShadow">'+data.campaigns[i].alias+'</span></div>'
 										+'<div id="" class="clearfix dataList_div1" >'
 											+'<ul class="dataLeft floatLeft" id='+ulId+'>'
 											+'</ul>'
@@ -50,15 +51,38 @@ $(function(){
 									
 			$('#datalist_wrap').append(liS);
 			
+			var $ulCon_rate = $('<ul id="ulConRate"></ul>');//放百分数
+			$('#'+ulId+'+ul').append($ulCon_rate);
 			for (var j = 0; j < dataStep.length; j++) {
-			
+				
 				var dataLeftLi =	'<li id="">'+dataStep[j].alias_uv+'：</li>'
-									+'<li id="">'+formatTmpl(dataStep[j].uv)+'</li>';
+									+'<li id="" class="textShadow1">'+formatTmpl(dataStep[j].uv)+'</li>';
 				$('#'+ulId).append(dataLeftLi);
+				var s = (j+1 >= dataStep.length) ? 0 : j+1;
+				legendData.push(dataStep[s].alias_con);
 				
-				legendData.push(dataStep[j].alias_con);
+				var li_con_rate = '<li id="">'+ ((dataStep[s].con_rate == '' || dataStep[s].con_rate == null) ? 0 : dataStep[s].con_rate )+'%'+'</li>'
+				$ulCon_rate.append(li_con_rate);
 				
-				dataS_f.push( {value: dataStep[j].con_rate, name: dataStep[j].alias_con,itemStyle:{normal:{color:colorS[j]}}});
+				
+				
+				/*dataS_f.push( {value: dataStep[j].con_rate, name: dataStep[j].alias_con,itemStyle:{normal:{color:colorS[j]}}});*/ //按ui形成图形漏斗图使用uv 
+				dataS_f.push( {	value: dataStep[j].uv,
+								name: dataStep[s].alias_con,
+								itemStyle:{normal:{color:colorS[s]},
+								 label: {
+						                normal: {
+						                    show: true,
+						                    position: 'right',
+						                    formatter: '{c}',
+						                },
+						                emphasis: {
+						                    textStyle: {
+						                        fontSize: 20
+						                    }
+						                }
+						            },
+								}});
 				dataS_l.push({name:dataStep[j].alias_con,type:'line',data:dataStep[j].history_con_rate.slice(-18),itemStyle:{normal:{color:colorS[j]}}});
 				//console.log(dataStep[j].history_con_rate.slice(-18));
 			}
@@ -78,14 +102,20 @@ $(function(){
 		
 		var myChart = echarts.init(document.getElementById(thisId));
 		option = {
+			textStyle : {
+					color : '#FFF',
+					align : 'center',
+					fontSize : 12
+			},
 		grid: {
-        left: '3%',
-	        right: '4%',
-	        bottom: '3%',
+        left: '2%',
+        top: '20%',
+	        right: '17%',
+	        bottom: '2%',
 	        containLabel: true
 	    },
 	    tooltip: {
-	        trigger: 'axis'
+	        trigger: 'axis',
 	    },
 	    legend: {
 	    	show:false,
@@ -99,6 +129,7 @@ $(function(){
 	    },
 	    
 	    xAxis:  {
+	    	name:'(单位：min)',
 	    	axisLabel : {
 				show : true,
 				interval:'0',//强制显示所有标签
@@ -114,6 +145,7 @@ $(function(){
 	        data: ['-5','-10','-15','-20','-25','-30','-35','-40','-45','-50','-55','-60','-65','-70','-75','-80','-85','-90'].reverse()
 	    },
 	    yAxis: {
+	    	name:'(单位：%)',
 	        type: 'value',
 	        axisLabel: {
 	            formatter: '{value}',
@@ -167,13 +199,13 @@ $(function(){
 	    },
 	    tooltip: {
 	        trigger: 'item',
-	        formatter: "{a} <br/>{b} : {c}%"
+	        formatter: "{b}"
 	    },
 	   
 	    legend: {
 	    	textStyle : {
 				color : '#FFF',
-				fontSize : 16
+				fontSize : 14
 			},
 	       /* data: ['展现','点击','访问','咨询','订单'],*/
 	        data:legendData,
@@ -185,21 +217,22 @@ $(function(){
 	        {
 	            name:'转化率',
 	            type:'funnel',
-	            left: '20%',
+	            left: '15%',
 	            top: 20,
 	            bottom: 2,
 	            width: '60%',
-	            min: 0,
-	            max: 100,
-	            minSize: '0%',
-	            maxSize: '100%',
+	            /*min: 0,
+	            max: 100,*/
+	            minSize: '5%',
+	            maxSize: '98%',
 	            sort: 'descending',
 	            gap: 1,
 	            label: {
 	                normal: {
 	                    show: true,
 	                    position: 'inside',
-	                    formatter: '{c}%',
+	                    formatter: '',
+	                  
 	                },
 	                emphasis: {
 	                    textStyle: {
@@ -240,6 +273,8 @@ $(function(){
 		cssFun ('.dataList div:nth-child(1)');
 		cssFun ('.dataLeft li:nth-child(2n)');
 		cssFun ('.dataLeft li:nth-child(2n+1)');
+		cssFun ('#ulConRate li');
+		//cssFun ('.textLine');
 		
 		
 		
@@ -289,6 +324,12 @@ setInterval(function(){
 		str>=10?num=str:num="0"+str;
 		return num;
 	}
+
+/*var color_S = ['#0fdc96','#1e5ae1','#50ffff','#f6400f']
+for (var i = 0; i<$('.spanClassColor').length; i++) {
+	$($('.spanClassColor')[i]).CSS('background',color_S[i]);
+}
+	*/
 
 });//$function_end
 

@@ -11,7 +11,7 @@ const lines = fs.readFileSync(filePath).toString().split('\n');
 const config = require('../conf/realhook.json')
 const net = require('net');
 
-var client = net.connect(config.tcpserver, function(){
+let client = net.connect(config.tcpserver, function(){
     console.log('client connected');
 });
 

@@ -2,39 +2,36 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>山东移动掌厅营销活动数据展示</title>
+		<title>山东移动掌厅重点业务转化率分析</title>
 		<link rel="stylesheet" type="text/css" href="css/common/style.css"/>
 		<link rel="stylesheet" type="text/css" href="css/index.css"/>
 		<link rel="stylesheet" type="text/css" href="css/common/iconfont.css"/>
 		
+		<!--<link rel="shortcut icon" type="image/ico" href="img/favicon .ico"/>
+		<link rel="bookmark" href="/favicon .ico"/>-->
+		
 		<script src="js/common/socket.io.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/common/jquery-1.11.1.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
-	
+	<!--2017-12-14 10:10 版本-->
 	</head>
 	<body>
 		<div id="header" class="clearfix">
-			<div id="" class="floatLeft">
-				<h2>山东移动掌厅营销活动数据展示</h2>
+			<div id="logo_wrap" class="floatLeft" >
+				<img src="img/yidonglogo.png"/>
+				<h2>&emsp;山东移动掌厅重点业务转化率分析</h2>
 			</div>
 			<div id="headerTime" class="floatLeft">
 				<i id="" class="iconfont icon-shijian5"></i>
-				<span id="currentTime">
-					
-				</span>
+				<span id="currentTime">&emsp;</span>
+				<img src="img/logo(2).png"/>
 			</div>
 		</div>
 		
-		<div id="" class="clearfix">
-			<span id="" class="spanWidth">
-				访问总量&emsp;<span id="dataPv" class="numSpanColor"></span>
-			</span>
-			<span id="" class="spanWidth">
-				用户总数&emsp;<span id="dataUv" class="numSpanColor"></span>
-			</span>
-			<span id="" class="spanWidth">
-				总办理成功率&emsp;<span id="dataSuc_rate" class="numSpanColor"></span>
-			</span>
+		<div id="" class="clearfix" style="height: 45px;">
+			<div id="" class="spanWidth">访问总量(PV):&emsp;<span id="dataPv" class="numSpanColor textShadow1"></span></div>
+			<div id="" class="spanWidth">用户总数(UV):&emsp;<span id="dataUv" class="numSpanColor textShadow1"></span></div>
+			<div id="" class="spanWidth">总办理转化率:&emsp;<span id="dataSuc_rate" class="numSpanColor textShadow1"></span></div>
 		</div>
 		
 		<ul id="datalist_wrap" class="clearfix">

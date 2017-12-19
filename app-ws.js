@@ -12,6 +12,7 @@ const app = new Koa();
 const server = http.createServer(app.callback());
 const static = require('koa-static');
 
+
 // koa middleware
 app.use(static(path.join(__dirname, `./static/${process.env.REALHOOK_ENV}`)));
 
